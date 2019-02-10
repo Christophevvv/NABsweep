@@ -1,0 +1,37 @@
+- hosts: localhost
+  vars:
+    #test each parameter seperately
+    single_parameter: True
+    params:
+      - name: "potentialPct"
+        group: "spParams"
+        range: [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+      - name: "columnCount"
+        group: "spParams"
+        range: [512,1024,1536,2560,4096] #tm has to match!
+      # - name: "seed"
+      #   group: "spParams"
+      #   range: [42,1234,6793,1,17]
+    modelparams: "{{ lookup('file','{{ config_location }}') | from_json }}"
+
+  tasks:
+    - name: Single parameter sweep
+      include_role:
+        name: single_param_sweep
+      with_items:
+        - "{{ params }}"
+      loop_control:
+        loop_var: current_param
+      when: single_parameter == True
+      
+    # - name: Multiple parameter sweep
+    #   include_role:
+    #     name: multiple_param_sweep
+    #   with_indexed_items:
+    #     - "{{ params | dict2items }}"
+    #   loop_control:
+    #     loop_var: index
+
+    # - name: debugging etc
+    #   debug:
+    #     msg: "{{ (params | dict2items) }}"

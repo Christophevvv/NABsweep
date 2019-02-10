@@ -1,0 +1,6 @@
+---
+# Run NAB
+
+- name: run NAB
+  debug:
+    msg: "running NAB"

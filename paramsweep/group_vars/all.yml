@@ -1,0 +1,7 @@
+---
+# Contains all variables related to running a parameter sweep for NAB
+
+#Location of NAB (Numenta Anomaly Benchmark)
+NAB_location: "../NAB/"
+config_location: "{{ NAB_location }}/config/detectorparams.json"
+output_config_location: "{{ NAB_location}}/config/paramsweep_detectorparams.json"

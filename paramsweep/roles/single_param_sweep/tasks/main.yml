@@ -1,0 +1,12 @@
+---
+# Run single parameter sweep
+
+- name: test
+  include_role:
+    name: change_parameters
+  with_items:
+    - "{{ current_param.range }}"
+  loop_control:
+    loop_var: param
+  when: current_param.group != ""
+
