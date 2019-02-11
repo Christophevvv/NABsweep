@@ -5,3 +5,4 @@
 NAB_location: "../NAB/"
 config_location: "{{ NAB_location }}/config/detectorparams.json"
 output_config_location: "{{ NAB_location}}/config/paramsweep_detectorparams.json"
+django_location: "../parametersite/"

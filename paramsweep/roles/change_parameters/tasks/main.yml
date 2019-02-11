@@ -6,12 +6,17 @@
     content: "{{ modelparams | combine({'numenta':{ 'modelConfig':{ 'modelParams': { current_param.group: { current_param.name : param } } } } }, recursive=true) | to_json }}"
     dest: "{{ output_config_location }}"
 
-- name: "run NAB for current parameter settings"
-  command: "python run.py -d null,numenta -m config/paramsweep_detectorparams.json --skipConfirmation --windowsFile labels/combined_windows_twitter.json"
-  args:
-    chdir: "{{ NAB_location }}"
+# - name: "run NAB for current parameter settings"
+#   command: "python run.py -d null,numenta -m config/paramsweep_detectorparams.json --skipConfirmation --windowsFile labels/combined_windows_twitter.json"
+#   args:
+#     chdir: "{{ NAB_location }}"
 
+
+- name: write parameters of current run to file
+  copy:
+    content: "[{{ current_param | combine({'range': param }, recursive=true) | to_json }}]"
+    dest: "{{ django_location }}/parametervalues.json"
 
 - name: "process NAB results"
   debug:
-    msg: "processing results for param: {{ current_param.name }} = {{param}}"
+    msg: "{{ current_param | combine({'range': param }, recursive=true) | to_json }}"

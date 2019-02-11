@@ -6,9 +6,9 @@
       - name: "potentialPct"
         group: "spParams"
         range: [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-      - name: "columnCount"
-        group: "spParams"
-        range: [512,1024,1536,2560,4096] #tm has to match!
+      # - name: "columnCount"
+      #   group: "spParams"
+      #   range: [512,1024,1536,2560,4096] #tm has to match!
       # - name: "seed"
       #   group: "spParams"
       #   range: [42,1234,6793,1,17]
