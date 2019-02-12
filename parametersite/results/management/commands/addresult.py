@@ -37,7 +37,8 @@ class Command(BaseCommand):
         #Get runs for given sweep to see if we already performed this value combination
         runObject,updateRun = self.getRun(sweepObject,paramObjects,params)
         
-        self.addLocalResults(runObject,updateRun)
+        self.processLocalResults(runObject,updateRun)
+        self.processGlobalResults(runObject,updateRun)
 
     def getParameters(self,params):
         ''' Get parameter objects or create them if they did not exist '''
@@ -160,10 +161,11 @@ class Command(BaseCommand):
         p.save()
         return p
 
-    def addLocalResults(self,runObject,updateRun):
+    def processLocalResults(self,runObject,updateRun):
         p = Processor()
         #create localresult scores for each profile (pandas DataFrame)
         localProfileScores = p.getLocalProfileResults()
+        #Get all profiles for which we want to produce results
         profileObjects = []
         for profile in p.getProfiles():
             profileObjects.append(self.getProfile(profile))
@@ -172,35 +174,144 @@ class Command(BaseCommand):
             raw_score_during_anomaly in p.processLocalResults():
             categoryObject = self.getCategory(category)
             datasetObject = self.getDataset(categoryObject,dataset,length)
-            #create local result
-            if(updateRun):
-                #get the original LocalResult
-                lr = LocalResult.objects.filter(run__id = runObject.id,
-                                                dataset__id = datasetObject.id)
-                assert(lr.count() == 1)
-                lr.update(pred_error_no_anomaly=raw_score_no_anomaly,
-                          pred_error_during_anomaly=raw_score_during_anomaly)
-                lr = lr.get()
-            else:
-                lr = LocalResult(run=runObject,dataset=datasetObject,
-                                 pred_error_no_anomaly=raw_score_no_anomaly,pred_error_during_anomaly=raw_score_during_anomaly)
-                lr.save()
-            localProfileScores_dataset = localProfileScores[localProfileScores.File == str(category+"/"+dataset)]
-            assert(localProfileScores_dataset.shape[0] == 1)
+            lr = self.getLocalResult(runObject,datasetObject,
+                                     raw_score_no_anomaly,
+                                     raw_score_during_anomaly)
+            if updateRun:
+                lr = self._updateLocalResult(lr,raw_score_no_anomaly,
+                                             raw_score_during_anomaly)
+            #Get the local profile scores for the current dataset    
+            scores = localProfileScores[localProfileScores.File\
+                                        == str(category+"/"+dataset)]
+            #Only 1 row gets returned,containing all scores of all profiles
+            assert(scores.shape[0] == 1)
             for profileObject in profileObjects:
-                #HOW ABOUT UPDATE?
-                #idea: make getLocalResultScore with call to _add if not
-                #exist, do update if update flag set
-                #this way even though we already did this, we can
-                #add new profiles.
-                profilename = profileObject.name
-                lrs = LocalResultScore(local_result = lr,
-                                       profile = profileObject,
-                                       score = localProfileScores_dataset[profilename+"_Score"],true_positives=localProfileScores_dataset[profilename+"_TP"],true_negatives=localProfileScores_dataset[profilename+"_TN"],false_positives=localProfileScores_dataset[profilename+"_FP"],false_negatives=localProfileScores_dataset[profilename+"_FN"])
-                lrs.save()
-                
+                #Get the local result or create a new one if it did not
+                #exit yet.
+                lrs = self.getLocalResultScore(lr,profileObject,scores)
+                if updateRun:
+                    self._updateLocalResultScore(lrs,profileObject,scores)
 
-                
+    def getLocalResult(self,runObject,datasetObject,raw_score_no_anomaly,
+                       raw_score_during_anomaly):
+        # (run,dataset) is unique for LocalResult
+        lr = LocalResult.objects.filter(run = runObject,
+                                        dataset = datasetObject)
+        if lr.count() == 0:
+            return self._addLocalResult(runObject,datasetObject,
+                                        raw_score_no_anomaly,
+                                        raw_score_during_anomaly)
+        elif lr.count() == 1:
+            return lr.get()
+        else:
+            pass #unique constraint violated
+
+    def _addLocalResult(self,runObject,datasetObject,raw_score_no_anomaly,
+                        raw_score_during_anomaly):
+        lr = LocalResult(run = runObject,
+                         dataset = datasetObject,
+                         pred_error_no_anomaly = raw_score_no_anomaly,
+                         pred_error_during_anomaly =\
+                         raw_score_during_anomaly)
+        lr.save()
+        return lr
+
+    def _updateLocalResult(self,lr,raw_score_no_anomaly,
+                           raw_score_during_anomaly):
+        lr.pred_error_no_anomaly = raw_score_no_anomaly
+        lr.pred_error_during_anomaly = raw_score_during_anomaly
+        lr.save()
+        return lr
             
             
+    def getLocalResultScore(self,localResult,profileObject,scores):
+        # (local_result,profile) is unique
+        lrs = LocalResultScore.objects.filter(local_result = localResult,
+                                              profile = profileObject)
+        if lrs.count() == 0:
+            return self._addLocalResultScore(localResult,profileObject,
+                                             scores)
+        elif lrs.count() == 1:
+            return lrs.get()
+        else:
+            pass #unique constraint violated
 
+    def _addLocalResultScore(self,localResult,profileObject,scores):
+        profilename = profileObject.name
+        lrs = LocalResultScore(local_result = localResult,
+                               profile = profileObject,
+                               score = scores[profilename+"_Score"],
+                               true_positives = scores[profilename+"_TP"],
+                               true_negatives = scores[profilename+"_TN"],
+                               false_positives = scores[profilename+"_FP"],
+                               false_negatives = scores[profilename+"_FN"])
+        lrs.save()
+        return lrs
+
+    def _updateLocalResultScore(self,lrs,profileObject,scores):
+        profilename = profileObject.name
+        lrs.score = scores[profilename+"_Score"]
+        lrs.true_positives = scores[profilename+"_TP"]
+        lrs.true_negatives = scores[profilename+"_TN"]
+        lrs.false_positives = scores[profilename+"_FP"]
+        lrs.false_negatives = scores[profilename+"_FN"]
+        lrs.save() #UPDATE
+        return lrs
+
+    def processGlobalResults(self,runObject,updateRun):
+        #Get all profiles for which we want to produce results
+        #profileObjects = []
+        p = Processor()
+        thresholds = p.getThresholds()
+        final_results = p.getFinalResults()
+        gr = self.getGlobalResult(runObject)
+        for profile in p.getProfiles():
+            #profileObjects.append(self.getProfile(profile))
+            profileObject = self.getProfile(profile)
+            threshold = thresholds[profileObject.name]['threshold']
+            normalized_score = final_results[profileObject.name]
+            grs = self.getGlobalResultScore(gr,
+                                            profileObject,
+                                            threshold,
+                                            normalized_score)
+            if updateRun:
+                self._updateGlobalResultScore(grs,
+                                              threshold,
+                                              normalized_score)
+
+    def getGlobalResult(self,runObject):
+        gr = GlobalResult.objects.filter(run = runObject)
+        if gr.count() == 0:
+            return self._addGlobalResult(runObject)
+        elif gr.count() == 1:
+            return gr.get()
+
+    def _addGlobalResult(self,runObject):
+        gr = GlobalResult(run = runObject)
+        gr.save()
+        return gr
+
+    def getGlobalResultScore(self,gr,profileObject,threshold,
+                             normalized_score):
+        grs = GlobalResultScore.objects.filter(global_result = gr,
+                                               profile = profileObject)
+        if grs.count() == 0:
+            return self._addGlobalResultScore(gr,profileObject,threshold,
+                                              normalized_score)
+        elif grs.count() == 1:
+            return grs.get()
+
+    def _addGlobalResultScore(self,gr,profileObject,threshold,
+                              normalized_score):
+        grs = GlobalResultScore(global_result = gr,
+                                profile = profileObject,
+                                threshold = threshold,
+                                normalized_score = normalized_score)
+        grs.save()
+        return grs
+
+    def _updateGlobalResultScore(self,grs,threshold,normalized_score):
+        grs.threshold = threshold
+        grs.normalized_score = threshold
+        grs.save()
+        return grs

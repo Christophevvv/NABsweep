@@ -110,3 +110,26 @@ class Processor:
         df = df.join(profile_df[keep_column])
     return df
       
+
+  def getThresholds(self):
+    thresholdsPath = os.path.join(self.NABDir,
+                                  self.configDir,
+                                  "thresholds.json")
+    try:
+      return json.load(open(thresholdsPath,'r'))[self.detectorName]
+    except FileNotFoundError:
+      print("File not found: " + str(thresholdsPath))
+      exit(1)    
+
+  def getFinalResults(self):
+    finalresultPath = os.path.join(self.NABDir,
+                                   self.resultsDir,
+                                   "final_results.json")
+    try:
+      return json.load(open(finalresultPath,'r'))[self.detectorName]
+    except FileNotFoundError:
+      print("File not found: " + str(finalresultPath))
+      exit(1)
+
+    
+
