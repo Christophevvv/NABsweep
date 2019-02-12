@@ -312,6 +312,6 @@ class Command(BaseCommand):
 
     def _updateGlobalResultScore(self,grs,threshold,normalized_score):
         grs.threshold = threshold
-        grs.normalized_score = threshold
+        grs.normalized_score = normalized_score
         grs.save()
         return grs
