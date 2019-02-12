@@ -69,7 +69,7 @@ class RunValue(models.Model):
         return "Value of " + str(self.value) + " for " + str(self.run) + " with " + str(self.sweep_parameter)
 
 class Profile(models.Model):
-    name = models.CharField(max_length = 256,unique=True)
+    name = models.CharField(max_length = 250,unique=True)
     tp_weight = models.FloatField()
     fp_weight = models.FloatField()
     tn_weight = models.FloatField()
