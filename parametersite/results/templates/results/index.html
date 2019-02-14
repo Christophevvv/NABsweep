@@ -1,1 +1,14 @@
-This is an index test.
+{% extends "results/base.html" %}
+
+{% block content %}
+<h1>Select sweep parameter size:</h1>
+<ul>
+  {% for order in sweep_order %}
+  <li>
+    <a href="{% url 'results:sweeps' order.nr_params %}">
+      {{ order.nr_params }}
+    </a>    
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "results/base.html" %}
+
+{% block content %}
+<h1>All sweeps with {{ order }} parameters:</h1>
+
+<table class="table">
+  <tr>
+    <th>Sweep Id</th>
+    <th>Parameters</th>
+  </tr>
+  {% for sweep_id,parameters in sweep_parameters.items %}  
+  <tr>
+    <td>
+      <a href="{% url 'results:sweep' sweep_id %}">      
+	{{ sweep_id }}
+      </a>
+    </td>    
+    <td>
+      <ul>
+	{% for parameter in parameters %}
+	<li>
+	  {{ parameter.parameter.group }} - {{ parameter.parameter.name }}
+	</li>      
+	{% endfor %}
+      </ul>
+    </td>
+  </tr>
+  {% endfor %}  
+</table> 
+{% endblock %}

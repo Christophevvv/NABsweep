@@ -1,0 +1,73 @@
+{% extends "results/base.html" %}
+
+{% block content %}
+<h1>Run with id {{run_id }}</h1>
+
+<h2>Global results:</h2>
+<table class="table">
+  <tr>
+    <th> Total prediction error (no anomaly) </th>
+    <th> Total prediction error (during anomaly) </th>
+  </tr>
+  <tr>
+    <td> {{ global_result.pred_error_no_anomaly }} </td>
+    <td> {{ global_result.pred_error_during_anomaly }} </td>
+  </tr>
+</table>
+
+<table class="table">
+  <tr>
+    <th> Profile name </th>
+    <th> threshold </th>
+    <th> normalized score </th>
+    <th> Score </th>
+    <th> TP </th>
+    <th> TN </th>
+    <th> FP </th> 
+    <th> FN </th>   
+  </tr>
+  {% for global_score in global_scores %}
+  <tr>
+    <td> {{ global_score.profile.name }} </td>
+    <td> {{ global_score.threshold }} </td>
+    <td> {{ global_score.normalized_score }} </td>
+    <td> {{ global_score.score }} </td>
+    <td> {{ global_score.true_positives }} </td>
+    <td> {{ global_score.true_negatives }} </td>
+    <td> {{ global_score.false_positives }} </td>    
+    <td> {{ global_score.false_negatives }} </td>        
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Local results:</h2>
+{% for profile in profiles %}
+<h3> Profile: {{ profile.name }} </h3>
+<table class="table">
+  <tr>
+    <th> Dataset </th>
+    <th> Prediction error (no anomaly) </th>
+    <th> Prediction error (during anomaly) </th>
+    <th> Score </th>
+    <th> TP </th>
+    <th> TN </th>
+    <th> FP </th>
+    <th> FN </th>
+  </tr>
+  {% for local_score in local_scores %}
+  {% if local_score.profile == profile %}
+  <tr>
+    <td> {{ local_score.local_result.dataset }} </td>
+    <td> {{ local_score.local_result.pred_error_no_anomaly }} </td>
+    <td> {{ local_score.local_result.pred_error_during_anomaly }} </td>
+    <td> {{ local_score.score }} </td>
+    <td> {{ local_score.true_positives }} </td>
+    <td> {{ local_score.true_negatives }} </td>
+    <td> {{ local_score.false_positives }} </td>
+    <td> {{ local_score.false_negatives }} </td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+</table>
+{% endfor %}
+{% endblock %}

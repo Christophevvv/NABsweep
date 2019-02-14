@@ -1,0 +1,35 @@
+{% extends "results/base.html" %}
+
+{% block content %}
+<h1>Sweep with id {{ sweep_id }}</h1>
+
+<table class="table">
+  <tr>
+    <th> Run ID </th>
+    {% for run in runs %}
+    
+    {% if forloop.first %}
+      {% for runvalue in runvalues %}
+        {% if runvalue.run.id == run.id %}
+          <th> {{ runvalue.sweep_parameter.parameter }} </th>
+        {% endif %}
+      {% endfor %}
+      </tr>
+    {% endif %}
+  <tr>
+    <td>
+      <a href="{% url 'results:run' run.id %}">
+	{{ run.id }}
+      </a>
+    </td>    
+    {% for runvalue in runvalues %}
+    {% if runvalue.run.id == run.id %}
+    <td>
+      {{ runvalue.value }}
+    </td>
+    {% endif %}
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
