@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.db.models import Sum,Count
-from django.db.models import CharField, Value,IntegerField
+from django.db.models import CharField, Value,IntegerField, FloatField
 from django.views import generic
 from .models import *
 
@@ -32,8 +32,31 @@ def sweep(request,id):
     ''' Show sweep with given id and list all of its runs'''
     runs = Run.objects.all().filter(sweep__id = id)
     runvalues = RunValue.objects.all().filter(run__in=runs)\
-                                      .order_by('sweep_parameter')
-    context = {'sweep_id': id, 'runs': runs, 'runvalues': runvalues}
+                                      .order_by('sweep_parameter','value')
+
+    grs = GlobalResultScore.objects.all().filter(global_result__run__in = runs)
+    profiles = Profile.objects.all()
+    scores = {}
+    for profile in profiles:
+        grs_local = grs.filter(profile=profile)
+        # grs_local.annotate(value='')
+        # for grs_local_instance in grs_local:
+        #     grs_local_instance.param_values = Value(RunValue.objects.all().filter(run = grs_local_instance.global_result.run).get(),output_field=FloatField())
+        # grs_local = grs_local.order_by('param_values__value')
+        # print(grs_local)
+
+        # print(profile.name)
+        #print(list(grs_local.values_list('normalized_score',flat=True)))
+        #scores[profile.name] = [instance.normalized_score for instance in grs_local]
+        results = []
+        for runvalue in runvalues:
+            print(runvalue)
+            results.append(grs_local.filter(global_result__run = runvalue.run).get().normalized_score)
+        scores[profile.name] = results
+    value_list = list(runvalues.values_list('value',flat=True))
+    score_list = []
+    context = {'sweep_id': id, 'runs': runs, 'runvalues': runvalues,
+               'x': value_list, 'y': scores, 'profiles': profiles}
     return render(request,'results/sweep.html',context)
 
 def run(request,id):

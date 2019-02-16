@@ -32,4 +32,42 @@
   </tr>
   {% endfor %}
 </table>
+{% for profile in profiles %}
+<canvas id="{{profile.name}}_chart" style="max-width: 500px;"></canvas>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+  {% for profile in profiles %}  
+  var {{profile.name}}_ctx = document.getElementById("{{profile.name}}_chart").getContext('2d');
+  var {{profile.name}}_chart = new Chart({{profile.name}}_ctx, {
+    type: 'line',
+    data: {
+	labels: {{ x }},
+      datasets: [{
+          label: 'Normalized score',
+	  {% for key,val in y.items %}
+	  {% if key == profile.name %}
+          data: {{ val }},
+	  {% endif %}
+	  {% endfor %}
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+  {% endfor %}
+
+</script>
+
 {% endblock %}

@@ -1,10 +1,13 @@
 {% extends "results/base.html" %}
+{% load static %}
 
 {% block content %}
-<h1>Run with id {{run_id }}</h1>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1>Run with id {{run_id }}</h1>
+</div>
 
-<h2>Global results:</h2>
-<table class="table">
+<h3>Global results:</h3>
+<table class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
   <tr>
     <th> Total prediction error (no anomaly) </th>
     <th> Total prediction error (during anomaly) </th>
@@ -15,7 +18,7 @@
   </tr>
 </table>
 
-<table class="table">
+<table class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
   <tr>
     <th> Profile name </th>
     <th> threshold </th>
@@ -39,21 +42,24 @@
   </tr>
   {% endfor %}
 </table>
-
+<hr>
 <h2>Local results:</h2>
 {% for profile in profiles %}
-<h3> Profile: {{ profile.name }} </h3>
-<table class="table">
-  <tr>
-    <th> Dataset </th>
-    <th> Prediction error (no anomaly) </th>
-    <th> Prediction error (during anomaly) </th>
-    <th> Score </th>
-    <th> TP </th>
-    <th> TN </th>
-    <th> FP </th>
-    <th> FN </th>
-  </tr>
+<h5> Profile: {{ profile.name }} </h5>
+<table name="sortableTable" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+  <thead>
+    <tr>
+      <th class="th-sm"> Dataset </th>
+      <th class="th-sm"> Prediction error (no anomaly) </th>
+      <th class="th-sm"> Prediction error (during anomaly) </th>
+      <th class="th-sm"> Score </th>
+      <th class="th-sm"> TP </th>
+      <th class="th-sm"> TN </th>
+      <th class="th-sm"> FP </th>
+      <th class="th-sm"> FN </th>
+    </tr>
+  </thead>
+  <tbody>
   {% for local_score in local_scores %}
   {% if local_score.profile == profile %}
   <tr>
@@ -68,6 +74,24 @@
   </tr>
   {% endif %}
   {% endfor %}
+  </tbody>
 </table>
 {% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<!-- MDBootstrap Datatables  -->
+<script type="text/javascript" src="{% static 'results/js/addons/datatables.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+      $('[name=sortableTable]').DataTable();
+      $('.dataTables_length').addClass('bs-select');
+  });
+</script>
+{% endblock %}
+
+{% block css %}
+<!-- MDBootstrap Datatables  -->
+<link href="{% static 'results/css/addons/datatables.min.css' %}" rel="stylesheet">
 {% endblock %}
