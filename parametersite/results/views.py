@@ -40,7 +40,9 @@ def sweep(request,id):
     #All defined profiles:
     profiles = Profile.objects.all()
     scores = {}
+    prediction_errors = {}
     baseline_scores = {}
+    baseline_prediction_errors = {}
     for profile in profiles:
         grs_local = grs.filter(profile=profile)
         # grs_local.annotate(value='')
@@ -52,17 +54,24 @@ def sweep(request,id):
         # print(profile.name)
         #print(list(grs_local.values_list('normalized_score',flat=True)))
         #scores[profile.name] = [instance.normalized_score for instance in grs_local]
-        results = []
+        result_scores = []
+        result_prediction_error = []
         for runvalue in runvalues:
             #print(runvalue)
-            results.append(grs_local.filter(global_result__run = runvalue.run).get().normalized_score)
-        scores[profile.name] = results
-        baseline_scores[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().normalized_score]*len(results)
+            result_scores.append(grs_local.filter(global_result__run = runvalue.run).get().normalized_score)
+            result_prediction_error.append(grs_local.filter(global_result__run = runvalue.run).get().global_result.pred_error_no_anomaly)
+            
+        scores[profile.name] = result_scores
+        prediction_errors[profile.name] = result_prediction_error
+        baseline_scores[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().normalized_score]*len(result_scores)
+        baseline_prediction_errors[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().global_result.pred_error_no_anomaly]*len(result_prediction_error)
     value_list = list(runvalues.values_list('value',flat=True))
     score_list = []
     context = {'sweep_id': id, 'runs': runs, 'runvalues': runvalues,
-               'x': value_list, 'y': scores, 'profiles': profiles,
-               'baseline_scores': baseline_scores}
+               'x': value_list, 'scores': scores, 'profiles': profiles,
+               'baseline_scores': baseline_scores,
+               'prediction_errors': prediction_errors,
+               'baseline_prediction_errors': baseline_prediction_errors}
     return render(request,'results/sweep.html',context)
 
 def run(request,id):

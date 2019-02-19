@@ -36,9 +36,24 @@
     {% endfor %}
   </tbody>
 </table>
-{% for profile in profiles %}
-<canvas id="{{profile.name}}_chart" style="max-width: 500px;"></canvas>
-{% endfor %}
+<div class="row">
+  <div class="col-sm-6">
+    <h2>Normalized scores</h2>
+    <hr>
+    {% for profile in profiles %}
+    <h4>{{profile.name}}</h4>
+    <canvas id="{{profile.name}}_scores_chart" style="max-width: 80%;"></canvas>
+    {% endfor %}
+  </div>
+  <div class="col-sm-6">
+    <h2>Prediction error (no anomaly)</h2>
+    <hr>
+    {% for profile in profiles %}
+    <h4>{{profile.name}}</h4>
+    <canvas id="{{profile.name}}_error_chart" style="max-width: 80%;"></canvas>
+    {% endfor %}    
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -52,14 +67,14 @@
 </script> 
 <script>
   {% for profile in profiles %}  
-  var {{profile.name}}_ctx = document.getElementById("{{profile.name}}_chart").getContext('2d');
-  var {{profile.name}}_chart = new Chart({{profile.name}}_ctx, {
+  var {{profile.name}}_scores_ctx = document.getElementById("{{profile.name}}_scores_chart").getContext('2d');
+  var {{profile.name}}_scores_chart = new Chart({{profile.name}}_scores_ctx, {
     type: 'line',
     data: {
 	labels: {{ x }},
-      datasets: [{
+	datasets: [{
           label: 'Normalized score',
-	  {% for key,val in y.items %}
+	  {% for key,val in scores.items %}
 	  {% if key == profile.name %}
           data: {{ val }},
 	  {% endif %}
@@ -69,6 +84,50 @@
 	{
 	    label: 'baseline',
 	    {% for key,val in baseline_scores.items %}
+	    {% if key == profile.name %}
+	    data : {{ val }},
+	    {% endif %}
+	    {% endfor %}	    
+	    backgroundColor: [
+		'rgba(0, 137, 132, 0)',
+            ],
+            borderColor: [
+		'rgba(0, 0, 0, 1)',
+            ],
+	    borderWidth: 1,
+	    pointRadius: 0,
+	    pointHitRadius: 0
+      }]
+    },
+    options: {
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: false
+          }
+        }]
+      }
+    }
+  });
+  {% endfor %}
+  {% for profile in profiles %}  
+  var {{profile.name}}_error_ctx = document.getElementById("{{profile.name}}_error_chart").getContext('2d');
+  var {{profile.name}}_error_chart = new Chart({{profile.name}}_error_ctx, {
+    type: 'line',
+    data: {
+	labels: {{ x }},
+	datasets: [{
+          label: 'Prediction error',
+	  {% for key,val in prediction_errors.items %}
+	  {% if key == profile.name %}
+          data: {{ val }},
+	  {% endif %}
+	  {% endfor %}
+          borderWidth: 1,
+        },
+	{
+	    label: 'baseline',
+	    {% for key,val in baseline_prediction_errors.items %}
 	    {% if key == profile.name %}
 	    data : {{ val }},
 	    {% endif %}
