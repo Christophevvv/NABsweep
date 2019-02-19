@@ -28,11 +28,11 @@
       {% if not original %}
       {% with result=global_result.pred_error_no_anomaly_relative_baseline %}
       {% if result <= 0 %}
-      <span class="badge badge-success">-
+      <span class="badge badge-success">
 	{% else %}
 	<span class="badge badge-danger">+
       {% endif %}
-      {{ result }}%
+      {{ result | floatformat:2 }}%
       </span>
 	{% endwith %}
 	{% endif %}
@@ -44,9 +44,9 @@
       {% if result >= 0 %}
       <span class="badge badge-success">+
 	{% else %}
-	<span class="badge badge-danger">-
+	<span class="badge badge-danger">
       {% endif %}
-      {{ result }}%
+      {{ result | floatformat:2 }}%
       </span>
 	{% endwith %}
 	{% endif %}
@@ -78,9 +78,9 @@
       {% if result >= 0 %}
       <span class="badge badge-success">+
 	{% else %}
-	<span class="badge badge-danger">-
+	<span class="badge badge-danger">
       {% endif %}
-      {{ result }}%
+      {{ result | floatformat:2 }}%
       </span>
 	{% endwith %}
 	{% endif %}
@@ -92,9 +92,9 @@
       {% if result >= 0 %}
       <span class="badge badge-success">+
 	{% else %}
-	<span class="badge badge-danger">-
+	<span class="badge badge-danger">
       {% endif %}
-      {{ result }}%
+      {{ result | floatformat:2 }}%
       </span>
 	{% endwith %}
 	{% endif %}
