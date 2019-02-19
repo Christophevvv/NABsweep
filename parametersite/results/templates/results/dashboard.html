@@ -1,0 +1,39 @@
+{% extends "results/base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Dashboard</h1>
+<hr>
+{% for profile,profile_scores in scores.items %}
+<h2>{{ profile }} </h2>
+<table name="sortableTable" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+  <thead>
+    <tr>
+      <th class="th-sm"> Run ID </th>
+      <th class="th-sm"> Sweep ID </th>   
+      <th class="th-sm"> Normalized score </th>
+      <th class="th-sm"> Prediction error </th>      
+    </tr>
+  </thead>
+  <tbody>
+    {% for score in profile_scores %}
+    <tr>
+      <td>
+	{{ score.global_result.run.id }}
+      </td>
+      <td>
+	{{ score.global_result.run.sweep.id }}
+      </td>
+      <td>
+	{{ score.normalized_score | floatformat:2 }}
+      </td>
+      <td>
+	{{ score.global_result.pred_error_no_anomaly | floatformat:2 }}
+      </td>	            
+    </tr>
+    {% endfor %}    
+  </tbody>
+</table>
+
+{% endfor %}
+{% endblock %}

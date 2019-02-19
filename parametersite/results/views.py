@@ -14,6 +14,20 @@ def index(request):
     
     return render(request,'results/index.html',context)
 
+def dashboard(request):
+    profiles = Profile.objects.all()
+    scores = {}
+    for profile in profiles:
+        global_scores = GlobalResultScore.objects.all()\
+                                                 .filter(profile=profile)\
+                                                 .order_by('normalized_score')
+        for global_score in global_scores:
+            _addGlobalResultBaseline(global_score.global_result)
+        _addGlobalScoresBaseline(global_scores)
+        scores[profile.name] = global_scores
+    context = { 'scores': scores }
+    return render(request,'results/dashboard.html',context)
+
 def sweeps(request,order):
     ''' List all sweeps and their parameters for a given order '''
     result = {}
@@ -98,11 +112,14 @@ def run(request,id):
     #Indicate whether this run is the original NAB parameter set
     original = (baseline_id == id)
     profiles = Profile.objects.all()
+    
+    runvalues = RunValue.objects.all().filter(run__id = id).order_by('sweep_parameter__parameter__group')
     context = {'run_id' : id, 'profiles': profiles, 'baseline_id': baseline_id,
                'original': original,
                'global_scores': global_scores,
                'local_scores': local_scores, 
-               'global_result': global_result }
+               'global_result': global_result,
+               'runvalues': runvalues}
                # 'b_global_scores': b_global_scores,
                # 'b_global_result': b_global_result,
                # 'b_local_scores': b_local_scores }

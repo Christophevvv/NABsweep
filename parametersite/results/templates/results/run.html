@@ -9,6 +9,32 @@
   <h1>Run with id {{run_id }}</h1>
   {% endif %}
 </div>
+<p>
+  <a href="{% url 'results:sweep' runvalues.first.run.sweep.id %}">
+    <i class="fas fa-arrow-left"></i> Back to sweep
+  </a>
+</p>
+<h3>Parameter values for this run:</h3>
+<table class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+  <tr>
+    <th> Parameter group </th>
+    <th> Parameter name </th>    
+    <th> Value </th>
+  </tr>
+  {% for runvalue in runvalues %}
+  <tr>
+    <td>
+      {{ runvalue.sweep_parameter.parameter.group }}
+    </td>
+    <td>
+      {{ runvalue.sweep_parameter.parameter.name }}
+    </td>    
+    <td>
+      {{ runvalue.value }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
 {% if not original %}
 <p>All differences are with respect to
   <a href="{% url 'results:run' baseline_id %}">
