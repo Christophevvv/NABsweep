@@ -1,0 +1,40 @@
+params:
+  - name: "activationThreshold"
+    group: "tmParams"
+    range: [0,1,2,5,8,12,13,14,15,18,20]
+  - name: "cellsPerColumn"
+    group: "tmParams"
+    range: [1,2,3,5,10,15,25,32,40,50,64,128,256]
+  - name: "globalDecay"
+    group: "tmParams"
+    range: [0,0.1,0.2,0.3,0.4,0.5,1]
+  - name: "initialPerm"
+    group: "tmParams"
+    range: [0,0.1,0.18,0.19,0.20,0.21,0.22,0.25,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+  - name: "maxAge"
+    group: "tmParams"
+    range: [0,1,2,3,4,5,10,25]
+  - name: "maxSegmentsPerCell"
+    group: "tmParams"
+    range: [1,2,4,16,32,64,128,256,512]
+  - name: "maxSynapsesPerSegment"
+    group: "tmParams"
+    range: [1,2,4,16,25,32,45,64,128,256,512]
+  - name: "minThreshold"
+    group: "tmParams"
+    range: [1,2,4,8,9,10,11,12,13,14,15,20]
+  - name: "newSynapseCount"
+    group: "tmParams"
+    range: [1,2,4,8,10,12,14,16,18,20,22,24,26,28,30,40]
+  - name: "pamLength"
+    group: "tmParams"
+    range: [1,2,3,4,5,6,7,8,9,10]
+  - name: "permanenceDec"
+    group: "tmParams"
+    range: [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]    
+  - name: "permanenceInc"
+    group: "tmParams"
+    range: [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]    
+  - name: "seed"
+    group: "tmParams"
+    range: [1,13,42,1956,1960,2019]    

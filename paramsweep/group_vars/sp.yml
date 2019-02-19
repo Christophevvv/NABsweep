@@ -1,0 +1,16 @@
+params:
+  - name: "potentialPct"
+    group: "spParams"
+    range: [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+  - name: "seed"
+    group: "spParams"
+    range: [1,13,42,1956,2019]
+  - name: "synPermActiveInc"
+    group: "spParams"
+    range: [0.03,0.02,0.01,0.009,0.008,0.007,0.006,0.005,0.004,0.003,0.002,0.001,0.0005]
+  - name: "synPermConnected"
+    group: "spParams"
+    range: [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+  - name: "synPermInactiveDec"
+    group: "spParams"
+    range: [0.001,0.0009,0.0008,0.0007,0.0006,0.0005,0.0004,0.0003,0.0002,0.0001

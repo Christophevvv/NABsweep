@@ -2,10 +2,10 @@
   vars:
     #test each parameter seperately
     single_parameter: True
-    params:
-      - name: "potentialPct"
-        group: "spParams"
-        range: [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+    # params:
+    #   - name: "initialPerm"
+    #     group: "tmParams"
+    #     range: [0.1,0.2]
       # - name: "columnCount"
       #   group: "spParams"
       #   range: [512,1024,1536,2560,4096] #tm has to match!
@@ -15,6 +15,12 @@
     modelparams: "{{ lookup('file','{{ config_location }}') | from_json }}"
 
   tasks:
+    - name: include temporal memory sweep parameters
+      include_vars:
+        file: group_vars/tm.yml
+    - name: echo
+      debug:
+        msg: "{{ params }}"
     - name: Single parameter sweep
       include_role:
         name: single_param_sweep
