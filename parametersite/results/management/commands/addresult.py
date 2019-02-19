@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.models import Sum
 from results.models import *
 import json
 from .process_results import Processor
@@ -266,18 +267,37 @@ class Command(BaseCommand):
         final_results = p.getFinalResults()
         gr = self.getGlobalResult(runObject)
         for profile in p.getProfiles():
-            #profileObjects.append(self.getProfile(profile))
+            #profileObjects.append(self.getProfile(profile))            
             profileObject = self.getProfile(profile)
             threshold = thresholds[profileObject.name]['threshold']
             normalized_score = final_results[profileObject.name]
+            
+            local_scores = LocalResultScore.objects.all().filter(local_result__run = gr.run,
+                                                                 profile=profileObject)
+            #Aggregate local scores
+            score = list(local_scores.aggregate(Sum('score')).values())[0]
+            true_positives = list(local_scores.aggregate(Sum('true_positives')).values())[0]
+            true_negatives = list(local_scores.aggregate(Sum('true_negatives')).values())[0]
+            false_positives = list(local_scores.aggregate(Sum('false_positives')).values())[0]
+            false_negatives = list(local_scores.aggregate(Sum('false_negatives')).values())[0]
             grs = self.getGlobalResultScore(gr,
                                             profileObject,
                                             threshold,
-                                            normalized_score)
+                                            normalized_score,
+                                            score,
+                                            true_positives,
+                                            true_negatives,
+                                            false_positives,
+                                            false_negatives)
             if updateRun:
                 self._updateGlobalResultScore(grs,
                                               threshold,
-                                              normalized_score)
+                                              normalized_score,
+                                              score,
+                                              true_positives,
+                                              true_negatives,
+                                              false_positives,
+                                              false_negatives)
 
     def getGlobalResult(self,runObject):
         gr = GlobalResult.objects.filter(run = runObject)
@@ -287,31 +307,47 @@ class Command(BaseCommand):
             return gr.get()
 
     def _addGlobalResult(self,runObject):
-        gr = GlobalResult(run = runObject)
+        lr = LocalResult.objects.all().filter(run = runObject)
+        pe_na = list(lr.aggregate(Sum('pred_error_no_anomaly')).values())[0]
+        pe_da = list(lr.aggregate(Sum('pred_error_during_anomaly')).values())[0]
+        gr = GlobalResult(run = runObject,
+                          pred_error_no_anomaly = pe_na,
+                          pred_error_during_anomaly = pe_da)
         gr.save()
         return gr
 
     def getGlobalResultScore(self,gr,profileObject,threshold,
-                             normalized_score):
+                             normalized_score,score,tp,tn,fp,fn):
         grs = GlobalResultScore.objects.filter(global_result = gr,
                                                profile = profileObject)
         if grs.count() == 0:
             return self._addGlobalResultScore(gr,profileObject,threshold,
-                                              normalized_score)
+                                              normalized_score,score,tp,tn,fp,fn)
         elif grs.count() == 1:
             return grs.get()
 
     def _addGlobalResultScore(self,gr,profileObject,threshold,
-                              normalized_score):
+                              normalized_score,score,tp,tn,fp,fn):
+
         grs = GlobalResultScore(global_result = gr,
                                 profile = profileObject,
                                 threshold = threshold,
-                                normalized_score = normalized_score)
+                                normalized_score = normalized_score,
+                                score = score,
+                                true_positives = tp,
+                                true_negatives = tn,
+                                false_positives = fp,
+                                false_negatives = fn)
         grs.save()
         return grs
 
-    def _updateGlobalResultScore(self,grs,threshold,normalized_score):
+    def _updateGlobalResultScore(self,grs,threshold,normalized_score,score,tp,tn,fp,fn):
         grs.threshold = threshold
         grs.normalized_score = normalized_score
+        grs.score = score
+        grs.true_positives = tp
+        grs.true_negatives = tn
+        grs.false_positives = fp
+        grs.false_negatives = fn
         grs.save()
         return grs

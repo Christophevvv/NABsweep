@@ -109,6 +109,8 @@ class LocalResultScore(models.Model):
 class GlobalResult(models.Model):
     ''' The result for a given sweep for all datasets together '''
     run = models.OneToOneField('Run',on_delete=models.CASCADE)
+    pred_error_no_anomaly = models.FloatField()
+    pred_error_during_anomaly = models.FloatField()
 
     def __str__(self):
         return "Global result for " + str(self.run)
@@ -119,6 +121,11 @@ class GlobalResultScore(models.Model):
     profile = models.ForeignKey('Profile',on_delete=models.CASCADE)
     threshold = models.FloatField()
     normalized_score = models.FloatField() #0-100
+    score = models.FloatField()
+    true_positives = models.IntegerField()
+    true_negatives = models.IntegerField()
+    false_positives = models.IntegerField()
+    false_negatives = models.IntegerField()    
 
     class Meta:
         unique_together = (('global_result','profile'),)

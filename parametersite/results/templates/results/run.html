@@ -3,9 +3,19 @@
 
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  {% if original %}
+  <h1>Original NAB run</h1>
+  {% else %}
   <h1>Run with id {{run_id }}</h1>
+  {% endif %}
 </div>
-
+{% if not original %}
+<p>All differences are with respect to
+  <a href="{% url 'results:run' baseline_id %}">
+    the original NAB parameter set.
+  </a>
+</p>
+{% endif %}
 <h3>Global results:</h3>
 <table class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
   <tr>
@@ -13,16 +23,44 @@
     <th> Total prediction error (during anomaly) </th>
   </tr>
   <tr>
-    <td> {{ global_result.pred_error_no_anomaly }} </td>
-    <td> {{ global_result.pred_error_during_anomaly }} </td>
+    <td>
+      {{ global_result.pred_error_no_anomaly | floatformat:2 }}
+      {% if not original %}
+      {% with result=global_result.pred_error_no_anomaly_relative_baseline %}
+      {% if result <= 0 %}
+      <span class="badge badge-success">-
+	{% else %}
+	<span class="badge badge-danger">+
+      {% endif %}
+      {{ result }}%
+      </span>
+	{% endwith %}
+	{% endif %}
+    </td>
+    <td>
+      {{ global_result.pred_error_during_anomaly | floatformat:2 }}
+      {% if not original %}
+      {% with result=global_result.pred_error_during_anomaly_relative_baseline %}
+      {% if result >= 0 %}
+      <span class="badge badge-success">+
+	{% else %}
+	<span class="badge badge-danger">-
+      {% endif %}
+      {{ result }}%
+      </span>
+	{% endwith %}
+	{% endif %}
+    </td>
   </tr>
 </table>
-
+{% if not original %}
+<p>Note: Total prediction error (no anomaly) is assumed to be positive for lower values, while the total prediction error (during anomaly) is assumed to be positive for higher values.</p>
+{% endif %}
 <table class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
   <tr>
     <th> Profile name </th>
-    <th> threshold </th>
-    <th> normalized score </th>
+    <th> Threshold </th>
+    <th> Normalized score </th>
     <th> Score </th>
     <th> TP </th>
     <th> TN </th>
@@ -32,9 +70,35 @@
   {% for global_score in global_scores %}
   <tr>
     <td> {{ global_score.profile.name }} </td>
-    <td> {{ global_score.threshold }} </td>
-    <td> {{ global_score.normalized_score }} </td>
-    <td> {{ global_score.score }} </td>
+    <td> {{ global_score.threshold | floatformat:2 }} </td>
+    <td>
+      {{ global_score.normalized_score | floatformat:2 }}
+      {% if not original %}
+      {% with result=global_score.normalized_score_relative_baseline %}
+      {% if result >= 0 %}
+      <span class="badge badge-success">+
+	{% else %}
+	<span class="badge badge-danger">-
+      {% endif %}
+      {{ result }}%
+      </span>
+	{% endwith %}
+	{% endif %}
+    </td>
+    <td>
+      {{ global_score.score | floatformat:2}}
+      {% if not original %}
+      {% with result=global_score.score_relative_baseline %}
+      {% if result >= 0 %}
+      <span class="badge badge-success">+
+	{% else %}
+	<span class="badge badge-danger">-
+      {% endif %}
+      {{ result }}%
+      </span>
+	{% endwith %}
+	{% endif %}
+    </td>
     <td> {{ global_score.true_positives }} </td>
     <td> {{ global_score.true_negatives }} </td>
     <td> {{ global_score.false_positives }} </td>    
@@ -64,9 +128,9 @@
   {% if local_score.profile == profile %}
   <tr>
     <td> {{ local_score.local_result.dataset }} </td>
-    <td> {{ local_score.local_result.pred_error_no_anomaly }} </td>
-    <td> {{ local_score.local_result.pred_error_during_anomaly }} </td>
-    <td> {{ local_score.score }} </td>
+    <td> {{ local_score.local_result.pred_error_no_anomaly | floatformat:2 }} </td>
+    <td> {{ local_score.local_result.pred_error_during_anomaly | floatformat:2 }} </td>
+    <td> {{ local_score.score | floatformat:2}} </td>
     <td> {{ local_score.true_positives }} </td>
     <td> {{ local_score.true_negatives }} </td>
     <td> {{ local_score.false_positives }} </td>
