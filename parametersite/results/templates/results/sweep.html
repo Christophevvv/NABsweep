@@ -64,7 +64,24 @@
           data: {{ val }},
 	  {% endif %}
 	  {% endfor %}
-        borderWidth: 1
+          borderWidth: 1,
+        },
+	{
+	    label: 'baseline',
+	    {% for key,val in baseline_scores.items %}
+	    {% if key == profile.name %}
+	    data : {{ val }},
+	    {% endif %}
+	    {% endfor %}	    
+	    backgroundColor: [
+		'rgba(0, 137, 132, 0)',
+            ],
+            borderColor: [
+		'rgba(0, 0, 0, 1)',
+            ],
+	    borderWidth: 1,
+	    pointRadius: 0,
+	    pointHitRadius: 0
       }]
     },
     options: {

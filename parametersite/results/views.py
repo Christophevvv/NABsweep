@@ -40,6 +40,7 @@ def sweep(request,id):
     #All defined profiles:
     profiles = Profile.objects.all()
     scores = {}
+    baseline_scores = {}
     for profile in profiles:
         grs_local = grs.filter(profile=profile)
         # grs_local.annotate(value='')
@@ -53,13 +54,15 @@ def sweep(request,id):
         #scores[profile.name] = [instance.normalized_score for instance in grs_local]
         results = []
         for runvalue in runvalues:
-            print(runvalue)
+            #print(runvalue)
             results.append(grs_local.filter(global_result__run = runvalue.run).get().normalized_score)
         scores[profile.name] = results
+        baseline_scores[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().normalized_score]*len(results)
     value_list = list(runvalues.values_list('value',flat=True))
     score_list = []
     context = {'sweep_id': id, 'runs': runs, 'runvalues': runvalues,
-               'x': value_list, 'y': scores, 'profiles': profiles}
+               'x': value_list, 'y': scores, 'profiles': profiles,
+               'baseline_scores': baseline_scores}
     return render(request,'results/sweep.html',context)
 
 def run(request,id):
