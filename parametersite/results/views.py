@@ -120,7 +120,7 @@ def _addGlobalScoresBaseline(global_scores):
     for global_score in global_scores:
         b_global_score = b_global_scores.filter(profile=global_score.profile).get()
         global_score.normalized_score_relative_baseline = ((float(global_score.normalized_score)/b_global_score.normalized_score)-1)*100
-        global_score.score_relative_baseline = ((float(global_score.score)/b_global_score.score)-1)*100
+        global_score.score_relative_baseline = global_score.score - b_global_score.score
         
 
 def _addLocalBaseline():
