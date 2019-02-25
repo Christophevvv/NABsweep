@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Sum,Count
 from django.db.models import CharField, Value,IntegerField, FloatField
+from django.db.models.functions import Cast
 from django.views import generic
 from .models import *
 
@@ -47,8 +48,9 @@ def sweep(request,id):
     #Return all runs of a given sweep
     runs = Run.objects.all().filter(sweep__id = id)
     #Queryset containing all parameter values for the runs of this sweep (sorted by parameter & val)
-    runvalues = RunValue.objects.all().filter(run__in=runs)\
-                                      .order_by('sweep_parameter','value')
+    runvalues = RunValue.objects.all().filter(run__in=runs)#.order_by('sweep_parameter','value')
+    #FIX for ordering on value
+    runvalues = runvalues.annotate(value_as_float=Cast('value',FloatField())).order_by('sweep_parameter','value_as_float')
     #All global results of all runs for this sweep:
     grs = GlobalResultScore.objects.all().filter(global_result__run__in = runs)
     #All defined profiles:
