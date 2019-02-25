@@ -2,10 +2,18 @@
   vars:
     #test each parameter seperately
     single_parameter: True
-    # params:
-    #   - name: "initialPerm"
-    #     group: "tmParams"
-    #     range: [0.1,0.2]
+    #We are changing encoder settings (special case)
+    encoder: True
+    params:      
+      - name: "timeOfDay"
+        group: "timestamp_timeOfDay"
+        range: [[21,1],[21,2],[21,3],[21,4],[21,5],[21,6],[21,7],[21,8],[21,9],[21,9.49],[21,10],[21,11],[21,12]]
+      - name: "n"
+        group: "value"
+        range: [300,350,400,450,500]
+      - name: "seed"
+        group: "value"
+        range: [1,13,42,1991,2019]
       # - name: "columnCount"
       #   group: "spParams"
       #   range: [512,1024,1536,2560,4096] #tm has to match!
@@ -15,9 +23,9 @@
     modelparams: "{{ lookup('file','{{ config_location }}') | from_json }}"
 
   tasks:
-    - name: include temporal memory sweep parameters
-      include_vars:
-        file: group_vars/tm.yml
+    # - name: include temporal memory sweep parameters
+    #   include_vars:
+    #     file: group_vars/tm.yml
     - name: echo
       debug:
         msg: "{{ params }}"

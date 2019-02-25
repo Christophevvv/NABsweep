@@ -59,7 +59,7 @@ class RunValue(models.Model):
     run = models.ForeignKey('Run',on_delete=models.CASCADE)
     sweep_parameter = models.ForeignKey('SweepParameter',on_delete=models.CASCADE)
     #parameter = models.ForeignKey('Parameter',on_delete=models.CASCADE)
-    value = models.FloatField()
+    value = models.CharField(max_length = 50)
 
     class Meta:
         unique_together = (('run','sweep_parameter','value'),)

@@ -5,7 +5,14 @@
   copy:
     content: "{{ modelparams | combine({'numenta':{ 'modelConfig':{ 'modelParams': { current_param.group: { current_param.name : param } } } } }, recursive=true) | to_json }}"
     dest: "{{ output_config_location }}"
+  when: encoder == False
 
+- name: "Set {{current_param.group}}.{{current_param.name}} = {{param}} in model config"
+  copy:
+    content: "{{ modelparams | combine({'numenta':{ 'modelConfig':{ 'modelParams': { 'sensorParams': { 'encoders': { current_param.group: { current_param.name : param } } } } } } }, recursive=true) | to_json }}"
+    dest: "{{ output_config_location }}"
+  when: encoder == True  
+  
 - name: write parameters of current run to file
   copy:
     content: "[{{ current_param | combine({'range': param }, recursive=true) | to_json }}]"

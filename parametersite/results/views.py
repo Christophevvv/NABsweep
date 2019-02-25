@@ -79,7 +79,8 @@ def sweep(request,id):
         prediction_errors[profile.name] = result_prediction_error
         baseline_scores[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().normalized_score]*len(result_scores)
         baseline_prediction_errors[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().global_result.pred_error_no_anomaly]*len(result_prediction_error)
-    value_list = list(runvalues.values_list('value',flat=True))
+    #value_list = list(runvalues.values_list('value',flat=True))
+    value_list = [float(x) if not (x[0] == '[') else float(list(x[1:-1].split(','))[1]) for x in list(runvalues.values_list('value',flat=True))]
     score_list = []
     context = {'sweep_id': id, 'runs': runs, 'runvalues': runvalues,
                'x': value_list, 'scores': scores, 'profiles': profiles,
