@@ -1,0 +1,32 @@
+{ "general":
+  {
+      "NAB_location": "../NAB/",
+      "config_location": "config/detectorparams.json",
+      "output_config_location": "config/paramsweep_detectorparams.json",
+      "django_location": "../parametersite/",
+      "output_parameter_values": "parametervalues.json",
+      "python3": "python3",
+      "python2": "python2"      
+  },
+  "verbosity": 1,
+  "sweeps":
+  [
+      {"MultiParameter": true,
+       "linear": false,
+       "parameters":
+       [
+	   {
+	       "name": "potentialPct",
+	       "group": "spParams",
+	       "range": [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+	   },
+	   {
+	       "name": "seed",
+	       "group": "spParams",
+	       "range": [1,13,42,1956,2019]
+	   }
+       ]
+      }      
+  ]
+}  
+    
