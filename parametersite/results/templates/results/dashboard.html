@@ -12,23 +12,45 @@
       <th class="th-sm"> Run ID </th>
       <th class="th-sm"> Sweep ID </th>   
       <th class="th-sm"> Normalized score </th>
-      <th class="th-sm"> Prediction error </th>      
+      <th class="th-sm"> Prediction error (No Anomaly) </th>      
     </tr>
   </thead>
   <tbody>
-    {% for score in profile_scores %}
+    {% for score in profile_scores %}    
     <tr>
       <td>
-	{{ score.global_result.run.id }}
+	<a href="{% url 'results:run' score.global_result.run.id %}">
+	  {{ score.global_result.run.id }}
+	</a>
       </td>
       <td>
-	{{ score.global_result.run.sweep.id }}
+	<a href="{% url 'results:sweep' score.global_result.run.sweep.id %}">
+	  {{ score.global_result.run.sweep.id }}
+	</a>
       </td>
       <td>
 	{{ score.normalized_score | floatformat:2 }}
+	{% with result=score.normalized_score_relative_baseline %}
+	{% if result >= 0 %}
+	<span class="badge badge-success">+
+	{% else %}
+	<span class="badge badge-danger">
+	{% endif %}
+	{{ result | floatformat:2 }}%
+	</span>
+	{% endwith %}	
       </td>
       <td>
-	{{ score.global_result.pred_error_no_anomaly | floatformat:2 }}
+	{{ score.global_result.pred_error_no_anomaly | floatformat:2 }}	
+	{% with result=score.global_result.pred_error_no_anomaly_relative_baseline %}
+	{% if result <= 0 %}
+	<span class="badge badge-success">
+	{% else %}
+	<span class="badge badge-danger">+
+	{% endif %}
+	{{ result | floatformat:2 }}%
+	</span>
+	{% endwith %}	
       </td>	            
     </tr>
     {% endfor %}    
@@ -36,4 +58,19 @@
 </table>
 
 {% endfor %}
+{% endblock %}
+{% block scripts %}
+<!-- MDBootstrap Datatables  -->
+<script type="text/javascript" src="{% static 'results/js/addons/datatables.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+      $('[name=sortableTable]').DataTable();
+      $('.dataTables_length').addClass('bs-select');
+  });
+</script> 
+{% endblock %}
+
+{% block css %}
+<!-- MDBootstrap Datatables  -->
+<link href="{% static 'results/css/addons/datatables.min.css' %}" rel="stylesheet">
 {% endblock %}
