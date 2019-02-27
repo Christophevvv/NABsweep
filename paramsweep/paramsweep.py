@@ -66,8 +66,31 @@ class ParameterSweep:
                 self.addResult()
 
     def runMultiSweep(self,sweep,linear):
-        parameters = sweep['parameters']
-        config = self.loadConfig(self.config_location)        
+        parameters = sweep['parameters']        
+        config = self.loadConfig(self.config_location)
+        if linear:
+            length = None
+            #CHECK IF LENGTHS MATCH
+            for parameter in parameters:
+                if length == None:
+                    length = len(parameter['range'])
+                else:
+                    #If assert fails, we can't do a linear sweep. Length has to match             
+                    assert(length == len(parameter['range']))
+                           
+            for i in range(length):
+                self.newParameterValues()
+                #take i'th entry in range of each parameter and perform a run:
+                for parameter in parameters:
+                    self.writeToConfig(config,parameter,parameter['range'][i])
+                    self.writeToParameterValues(copy.copy(parameter),parameter['range'][i])
+                self.saveConfig(config,self.output_config_location)
+                #write parameter + value to parameter_values
+                self.saveParameterValues(self.output_parameter_values)
+                self.runNAB()
+                self.addResult()
+            return #Do not run anything else
+        #ELSE: NOT LINEAR (IMPLICIT)
         #Construct the product of all parameter values
         product = None
         for parameter in parameters:
