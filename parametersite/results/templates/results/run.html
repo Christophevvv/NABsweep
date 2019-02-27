@@ -10,9 +10,11 @@
   {% endif %}
 </div>
 <p>
+  {% if not original %}
   <a href="{% url 'results:sweep' runvalues.first.run.sweep.id %}">
     <i class="fas fa-arrow-left"></i> Back to sweep
   </a>
+  {% endif %}
 </p>
 <h3>Parameter values for this run:</h3>
 <table class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
