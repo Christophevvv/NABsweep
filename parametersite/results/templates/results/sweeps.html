@@ -3,11 +3,15 @@
 {% block content %}
 <h1>All sweeps with {{ order }} parameters:</h1>
 
-<table class="table">
-  <tr>
-    <th>Sweep Id</th>
-    <th>Parameters</th>
-  </tr>
+
+<table name="sortableTable" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+  <thead>
+    <tr>
+      <th class="th-sm">Sweep Id</th>
+      <th class="th-sm">Parameters</th>
+    </tr>
+  </thead>
+  <tbody>
   {% for sweep_id,parameters in sweep_parameters.items %}  
   <tr>
     <td>
@@ -25,6 +29,7 @@
       </ul>
     </td>
   </tr>
-  {% endfor %}  
+  {% endfor %}
+  </tbody>
 </table> 
 {% endblock %}

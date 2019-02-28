@@ -2,13 +2,23 @@
 
 {% block content %}
 <h1>Select sweep parameter size:</h1>
-<ul>
-  {% for order in sweep_order %}
-  <li>
-    <a href="{% url 'results:sweeps' order.nr_params %}">
-      {{ order.nr_params }}
-    </a>    
-  </li>
-  {% endfor %}
-</ul>
+
+<table name="sortableTable" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+  <thead>
+    <tr>
+      <th class="th-sm"> Order </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for order in sweep_order %}
+    <tr>            
+      <td>
+	<a href="{% url 'results:sweeps' order.nr_params %}">
+	  {{ order.nr_params }}
+	</a>
+      </td>
+    </tr>      
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
