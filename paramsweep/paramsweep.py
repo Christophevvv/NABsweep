@@ -5,6 +5,7 @@ import json
 import itertools
 import subprocess
 import copy
+import logging
 
 
 def main(args):
@@ -26,6 +27,7 @@ class ParameterSweep:
         self.output_parameter_values = os.path.join(self.django,params['general']['output_parameter_values'])
         self.verbosity = params['verbosity']
         self.nr_sweeps = len(params['sweeps'])
+        logging.basicConfig(filename='paramsweep.log',format='%(asctime)s %(message)s',level=logging.DEBUG)
         
         if self.verbosity > 0:
             print("VERBOSE OUTPUT BEING GENERATED:")
@@ -43,8 +45,8 @@ class ParameterSweep:
         ''' Geral run sweep. Delegates to runSingleSweep or runMultiSweep '''
         multi_parameter = sweep['MultiParameter']
         if multi_parameter:
-            linear = sweep['linear']
-            self.runMultiSweep(sweep,linear)
+            #linear = sweep['linear']
+            self.runMultiSweep(sweep)
         else:
             self.runSingleSweep(sweep)
 
@@ -62,59 +64,144 @@ class ParameterSweep:
                 self.newParameterValues()
                 self.writeToParameterValues(copy.copy(parameter),value)
                 self.saveParameterValues(self.output_parameter_values)
-                self.runNAB()
-                self.addResult()
+                if self.runNAB():
+                    self.addResult()
 
-    def runMultiSweep(self,sweep,linear):
+    def runMultiSweep(self,sweep):
         parameters = sweep['parameters']        
         config = self.loadConfig(self.config_location)
-        if linear:
-            length = None
-            #CHECK IF LENGTHS MATCH
-            for parameter in parameters:
-                if length == None:
-                    length = len(parameter['range'])
-                else:
-                    #If assert fails, we can't do a linear sweep. Length has to match             
-                    assert(length == len(parameter['range']))
-                           
+
+        linear_parameters = []
+        nonlinear_parameters = []
+        for parameter in parameters:
+            if parameter['linear'] == True:
+                linear_parameters.append(parameter)
+            else:
+                nonlinear_parameters.append(parameter)
+        length = 0
+        for parameter in linear_parameters:
+            if length == 0:
+                length = len(parameter['range'])
+            else:
+                #If assert fails, we can't do a linear sweep.
+                #Length has to match             
+                assert(length == len(parameter['range']))
+        product = []
+        for parameter in nonlinear_parameters:
+            if product == []:
+                product = parameter['range']
+            else:
+                product = list(itertools.product(product,
+                                                 parameter['range']))
+        if length > 0 and len(product) > 0:
+            if self.verbosity > 0:
+                print("The product of this parameter set will require " + str(len(product)*length) + " runs.")
+            for i in range(length):
+                #take i'th entry in range of each parameter and perform a run:               
+                for combination in product:
+                    if self.verbosity > 0:
+                        print("Running new combination")
+                    #run_values holds the value for each parameter in the order in which params are listed
+                    run_values = self._tupleToArray(combination)
+                    #assert(len(run_values) == len(params['sweeps']))
+                    self.newParameterValues()
+                    for j in range(len(nonlinear_parameters)):                
+                        self.writeToConfig(config,nonlinear_parameters[j],run_values[j])
+                        self.writeToParameterValues(copy.copy(nonlinear_parameters[j]),run_values[j])
+                    #linear parameters
+                    for l_parameter in linear_parameters:                            
+                        self.writeToConfig(config,l_parameter,l_parameter['range'][i])
+                        self.writeToParameterValues(copy.copy(l_parameter),
+                                                    l_parameter['range'][i])
+                    self.saveConfig(config,self.output_config_location)
+                    #write parameter + value to parameter_values
+                    self.saveParameterValues(self.output_parameter_values)
+                    if self.runNAB():
+                        self.addResult()
+                    
+        elif length > 0 and len(product) == 0:
+            if self.verbosity > 0:
+                print("The product of this parameter set will require " + str(length) + " runs.")            
             for i in range(length):
                 self.newParameterValues()
                 #take i'th entry in range of each parameter and perform a run:
-                for parameter in parameters:
-                    self.writeToConfig(config,parameter,parameter['range'][i])
-                    self.writeToParameterValues(copy.copy(parameter),parameter['range'][i])
+                for l_parameter in linear_parameters:
+                    self.writeToConfig(config,l_parameter,l_parameter['range'][i])
+                    self.writeToParameterValues(copy.copy(l_parameter),
+                                                l_parameter['range'][i])
                 self.saveConfig(config,self.output_config_location)
                 #write parameter + value to parameter_values
                 self.saveParameterValues(self.output_parameter_values)
-                self.runNAB()
-                self.addResult()
-            return #Do not run anything else
-        #ELSE: NOT LINEAR (IMPLICIT)
-        #Construct the product of all parameter values
-        product = None
-        for parameter in parameters:
-            if product == None:
-                product = parameter['range']
-            else:
-                product = list(itertools.product(product,parameter['range']))
-        if self.verbosity > 0:
-            print("The product of this parameter set will require " + str(len(product)) + " runs.")
-        for combination in product:
+                if self.runNAB():
+                    self.addResult()
+        elif length == 0 and len(product) > 0:
             if self.verbosity > 0:
-                print("Running new combination")
-            #run_values holds the value for each parameter in the order in which params are listed
-            run_values = self._tupleToArray(combination)
-            #assert(len(run_values) == len(params['sweeps']))
-            self.newParameterValues()
-            for i in range(len(parameters)):                
-                self.writeToConfig(config,parameters[i],run_values[i])
-                self.writeToParameterValues(copy.copy(parameters[i]),run_values[i])                
-            self.saveConfig(config,self.output_config_location)
-            #write parameter + value to parameter_values
-            self.saveParameterValues(self.output_parameter_values)
-            self.runNAB()
-            self.addResult()                
+                print("The product of this parameter set will require " + str(len(product)) + " runs.")            
+            for combination in product:
+                if self.verbosity > 0:
+                    print("Running new combination")
+                #run_values holds the value for each parameter in the order in which params are listed
+                run_values = self._tupleToArray(combination)
+                #assert(len(run_values) == len(params['sweeps']))
+                self.newParameterValues()
+                for j in range(len(nonlinear_parameters)):                
+                    self.writeToConfig(config,nonlinear_parameters[j],run_values[j])
+                    self.writeToParameterValues(copy.copy(nonlinear_parameters[j]),run_values[j])
+                self.saveConfig(config,self.output_config_location)
+                #write parameter + value to parameter_values
+                self.saveParameterValues(self.output_parameter_values)
+                if self.runNAB():
+                    self.addResult()
+        else:
+            print("No parameters defined in this sweep")
+
+        # if linear:
+        #     length = None
+        #     #CHECK IF LENGTHS MATCH
+        #     for parameter in parameters:
+        #         if length == None:
+        #             length = len(parameter['range'])
+        #         else:
+        #             #If assert fails, we can't do a linear sweep. Length has to match             
+        #             assert(length == len(parameter['range']))
+                           
+        #     for i in range(length):
+        #         self.newParameterValues()
+        #         #take i'th entry in range of each parameter and perform a run:
+        #         for parameter in parameters:
+        #             self.writeToConfig(config,parameter,parameter['range'][i])
+        #             self.writeToParameterValues(copy.copy(parameter),parameter['range'][i])
+        #         self.saveConfig(config,self.output_config_location)
+        #         #write parameter + value to parameter_values
+        #         self.saveParameterValues(self.output_parameter_values)
+        #         self.runNAB()
+        #         self.addResult()
+        #     return #Do not run anything else
+        # #ELSE: NOT LINEAR (IMPLICIT)
+        # #Construct the product of all parameter values
+        # product = None
+        # for parameter in parameters:
+        #     if product == None:
+        #         product = parameter['range']
+        #     else:
+        #         product = list(itertools.product(product,parameter['range']))
+        # if self.verbosity > 0:
+        #     print("The product of this parameter set will require " + str(len(product)) + " runs.")
+        # for combination in product:
+        #     if self.verbosity > 0:
+        #         print("Running new combination")
+        #     #run_values holds the value for each parameter in the order in which params are listed
+        #     run_values = self._tupleToArray(combination)
+        #     #assert(len(run_values) == len(params['sweeps']))
+        #     self.newParameterValues()
+        #     for i in range(len(parameters)):                
+        #         self.writeToConfig(config,parameters[i],run_values[i])
+        #         self.writeToParameterValues(copy.copy(parameters[i]),run_values[i])                
+        #     self.saveConfig(config,self.output_config_location)
+        #     #write parameter + value to parameter_values
+        #     self.saveParameterValues(self.output_parameter_values)
+        #     self.runNAB()
+        #     self.addResult()                
 
     def _tupleToArray(self,t):
         ''' Turn tuple of tuples into an array.
@@ -134,7 +221,11 @@ class ParameterSweep:
         except subprocess.CalledProcessError as e:
             print("Error occured while running following command: " + str(e.cmd))
             print(e.output)
+            logging.warning("Error occured while running following command: " + str(e.cmd) + ": " + str(e.output))
+            logging.warning("This happened for parameter values: " + str(self.parameter_values))
+            return False
             #print(subprocess.check_output(["echo","test"],stderr=subprocess.STDOUT))#,stderr=subprocess.STDOUT,shell=True))
+        return True
 
     def addResult(self):
         ''' Call addResult in django project that adds the current run to database '''
@@ -143,7 +234,6 @@ class ParameterSweep:
         except subprocess.CalledProcessError as e:
             print("Error occured while running following command: " + str(e.cmd))
             print(e.output)
-            
 
     def loadConfig(self,location):
         ''' Load and return config at given location '''
@@ -163,9 +253,15 @@ class ParameterSweep:
         elif group in ['spParams','tmParams']:
             config['numenta']['modelConfig']['modelParams'][group][parameter['name']] = value
         else: #encoder
-            config['numenta']['modelConfig']['modelParams']['sensorParams']['encoders'][group][parameter['name']] = value
+            if group == 'valueEncoder':
+                config['numenta']['modelConfig']['modelParams']['sensorParams']['encoders']['value'][parameter['name']] = value
+            elif group == 'timestampEncoder':
+                config['numenta']['modelConfig']['modelParams']['sensorParams']['encoders']['timestamp_timeOfDay'][parameter['name']] = value
+            else:
+                config['numenta']['modelConfig']['modelParams']['sensorParams']['encoders'][group][parameter['name']] = value
 
     def saveParameterValues(self,location):
+        print(self.parameter_values)
         with open(location,'w') as outfile:
             json.dump(self.parameter_values,outfile)
 
