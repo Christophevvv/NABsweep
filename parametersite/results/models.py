@@ -77,16 +77,30 @@ class Profile(models.Model):
 
     def __str__(self):
         return "Profile: " + str(self.name)
+
+class Seeds(models.Model):
+    ''' Combination of all seeds present in an HTM system '''
+    tmSeed = models.IntegerField()
+    spSeed = models.IntegerField()
+    encoderSeed = models.IntegerField()
+
+    class Meta:
+        unique_together = (('tmSeed','spSeed','encoderSeed'),)
+
+    def __str__(self):
+        return "Seeds: SP = " + str(self.spSeed) + ", TM = " + str(self.tmSeed) \
+            + ", encoder = " + str(self.encoderSeed)
     
 class LocalResult(models.Model):
     ''' The result for a given sweep run for each dataset individually '''
     run = models.ForeignKey('Run',on_delete=models.CASCADE)
     dataset = models.ForeignKey('Dataset',on_delete=models.CASCADE)
+    seeds = models.ForeignKey('Seeds',on_delete=models.CASCADE)
     pred_error_no_anomaly = models.FloatField()
     pred_error_during_anomaly = models.FloatField()
 
     class Meta:
-        unique_together = (('run','dataset'),)
+        unique_together = (('run','dataset','seeds'),)
 
     def __str__(self):
         return "Local Result for " + str(self.dataset)
@@ -108,9 +122,13 @@ class LocalResultScore(models.Model):
     
 class GlobalResult(models.Model):
     ''' The result for a given sweep for all datasets together '''
-    run = models.OneToOneField('Run',on_delete=models.CASCADE)
+    run = models.ForeignKey('Run',on_delete=models.CASCADE)
+    seeds = models.ForeignKey('Seeds',on_delete=models.CASCADE)    
     pred_error_no_anomaly = models.FloatField()
     pred_error_during_anomaly = models.FloatField()
+
+    class Meta:
+        unique_together = (('run','seeds'),)
 
     def __str__(self):
         return "Global result for " + str(self.run)

@@ -37,14 +37,18 @@ class Command(BaseCommand):
         sweepObject = self.getSweep(paramObjects)
         #Get runs for given sweep to see if we already performed this value combination
         runObject,updateRun = self.getRun(sweepObject,paramObjects,params)
+        #Get seed object or create it if non-existent
+        seedsObject = self.getSeeds(params)        
         
-        self.processLocalResults(runObject,updateRun)
-        self.processGlobalResults(runObject,updateRun)
+        self.processLocalResults(runObject,seedsObject,updateRun)
+        self.processGlobalResults(runObject,seedsObject,updateRun)
 
     def getParameters(self,params):
         ''' Get parameter objects or create them if they did not exist '''
         paramObjects = []
         for param in params:
+            if param['name'] == "seed":
+                continue #seeds are no langer a first-class parameter
             p = Parameter.objects.filter(group=param['group']).filter(name=param['name'])
             if(len(p) == 0):
                 p = self._addParameter(group=param['group'],name=param['name'])
@@ -60,6 +64,35 @@ class Command(BaseCommand):
         p = Parameter(group=group,name=name)
         p.save()
         return p
+
+    def getSeeds(self,params):
+        ''' Get seeds object or create it if it did not exist '''
+        #Default values:
+        tmSeed = 1960
+        spSeed = 1956
+        encoderSeed = 42
+        for param in params:
+            print(str(param))
+            if param['group'] == 'spParams' and param['name'] == 'seed':
+                spSeed = param['range']
+            elif param['group'] == 'tmParams' and param['name'] == 'seed':
+                tmSeed = param['range']
+            elif param['group'] == 'valueEncoder' and param['name'] == 'seed':
+                encoderSeed = param['range']
+        s = Seeds.objects.filter(tmSeed = tmSeed,spSeed = spSeed,encoderSeed = encoderSeed)
+        if len(s) == 0:
+            s = self._addSeeds(tmSeed,spSeed,encoderSeed)
+        elif len(s) == 1:
+            s = s.get()
+        else:
+            pass #unique constraint violated
+        return s
+
+    def _addSeeds(self,tmSeed,spSeed,encoderSeed):
+        ''' Create new seeds combination '''
+        s = Seeds(tmSeed=tmSeed,spSeed=spSeed,encoderSeed=encoderSeed)
+        s.save()
+        return s
 
     def getCategory(self,name):
         c = Category.objects.filter(name = name)
@@ -118,15 +151,17 @@ class Command(BaseCommand):
     def getRun(self,sweepObject,paramObjects,params):
         for run in Run.objects.filter(sweep__id = sweepObject.id):
             rv = RunValue.objects.filter(run__id = run.id)
-            assert(rv.count() == len(params))
+            #assert(rv.count() == len(params))
             found = True
             for param in params:
+                if param['name'] == 'seed':
+                    continue
                 q = rv.filter(sweep_parameter__parameter__name = param['name'])
                 q = q.filter(sweep_parameter__parameter__group = param['group'])
                 if(not q.filter(value=param['range']).exists()):
                     found = False
             if(found):
-                print("A run with given parameter values was found, results will be UPDATED.")
+                print("A run with given parameter values was found, results will be UPDATED or EXTENDED (with other seeds).")
                 return run,True
         #No run found with these parameter value combination, create new one
         return self._addRun(sweepObject,paramObjects,params),False
@@ -136,9 +171,9 @@ class Command(BaseCommand):
         #Create the run
         r = Run(sweep=sweepObject)
         r.save()
-        assert(len(paramObjects) == len(params))
+        #assert(len(paramObjects) == len(params)) #no longer true since seeds are no longer parameters
         #link parameter values to this run
-        for i in range(0,len(params)):
+        for i in range(0,len(paramObjects)):
             sp = SweepParameter.objects.get(parameter__id = paramObjects[i].id, sweep__id=sweepObject.id)
             rv = RunValue(run = r,sweep_parameter = sp,value = params[i]['range'])
             rv.save()
@@ -162,7 +197,7 @@ class Command(BaseCommand):
         p.save()
         return p
 
-    def processLocalResults(self,runObject,updateRun):
+    def processLocalResults(self,runObject,seedsObject,updateRun):
         p = Processor()
         #create localresult scores for each profile (pandas DataFrame)
         localProfileScores = p.getLocalProfileResults()
@@ -175,7 +210,7 @@ class Command(BaseCommand):
             raw_score_during_anomaly in p.processLocalResults():
             categoryObject = self.getCategory(category)
             datasetObject = self.getDataset(categoryObject,dataset,length)
-            lr = self.getLocalResult(runObject,datasetObject,
+            lr = self.getLocalResult(runObject,datasetObject,seedsObject,
                                      raw_score_no_anomaly,
                                      raw_score_during_anomaly)
             if updateRun:
@@ -193,13 +228,16 @@ class Command(BaseCommand):
                 if updateRun:
                     self._updateLocalResultScore(lrs,profileObject,scores)
 
-    def getLocalResult(self,runObject,datasetObject,raw_score_no_anomaly,
+    def getLocalResult(self,runObject,datasetObject,seedsObject,
+                       raw_score_no_anomaly,
                        raw_score_during_anomaly):
-        # (run,dataset) is unique for LocalResult
+        # (run,dataset,seeds) is unique for LocalResult
         lr = LocalResult.objects.filter(run = runObject,
-                                        dataset = datasetObject)
+                                        dataset = datasetObject,
+                                        seeds = seedsObject)
         if lr.count() == 0:
             return self._addLocalResult(runObject,datasetObject,
+                                        seedsObject,
                                         raw_score_no_anomaly,
                                         raw_score_during_anomaly)
         elif lr.count() == 1:
@@ -207,10 +245,12 @@ class Command(BaseCommand):
         else:
             pass #unique constraint violated
 
-    def _addLocalResult(self,runObject,datasetObject,raw_score_no_anomaly,
+    def _addLocalResult(self,runObject,datasetObject,seedsObject,
+                        raw_score_no_anomaly,
                         raw_score_during_anomaly):
         lr = LocalResult(run = runObject,
                          dataset = datasetObject,
+                         seeds = seedsObject,
                          pred_error_no_anomaly = raw_score_no_anomaly,
                          pred_error_during_anomaly =\
                          raw_score_during_anomaly)
@@ -259,13 +299,13 @@ class Command(BaseCommand):
         lrs.save() #UPDATE
         return lrs
 
-    def processGlobalResults(self,runObject,updateRun):
+    def processGlobalResults(self,runObject,seedsObject,updateRun):
         #Get all profiles for which we want to produce results
         #profileObjects = []
         p = Processor()
         thresholds = p.getThresholds()
         final_results = p.getFinalResults()
-        gr = self.getGlobalResult(runObject)
+        gr = self.getGlobalResult(runObject,seedsObject)
         for profile in p.getProfiles():
             #profileObjects.append(self.getProfile(profile))            
             profileObject = self.getProfile(profile)
@@ -273,6 +313,7 @@ class Command(BaseCommand):
             normalized_score = final_results[profileObject.name]
             
             local_scores = LocalResultScore.objects.all().filter(local_result__run = gr.run,
+                                                                 local_result__seeds = gr.seeds,
                                                                  profile=profileObject)
             #Aggregate local scores
             score = list(local_scores.aggregate(Sum('score')).values())[0]
@@ -299,18 +340,19 @@ class Command(BaseCommand):
                                               false_positives,
                                               false_negatives)
 
-    def getGlobalResult(self,runObject):
-        gr = GlobalResult.objects.filter(run = runObject)
+    def getGlobalResult(self,runObject,seedsObject):
+        gr = GlobalResult.objects.filter(run = runObject,seeds = seedsObject)
         if gr.count() == 0:
-            return self._addGlobalResult(runObject)
+            return self._addGlobalResult(runObject,seedsObject)
         elif gr.count() == 1:
             return gr.get()
 
-    def _addGlobalResult(self,runObject):
-        lr = LocalResult.objects.all().filter(run = runObject)
+    def _addGlobalResult(self,runObject,seedsObject):
+        lr = LocalResult.objects.all().filter(run = runObject,seeds = seedsObject)
         pe_na = list(lr.aggregate(Sum('pred_error_no_anomaly')).values())[0]
         pe_da = list(lr.aggregate(Sum('pred_error_during_anomaly')).values())[0]
         gr = GlobalResult(run = runObject,
+                          seeds = seedsObject,
                           pred_error_no_anomaly = pe_na,
                           pred_error_during_anomaly = pe_da)
         gr.save()
