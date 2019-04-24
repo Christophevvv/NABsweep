@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.db.models import Sum,Count
+from django.db.models import Sum,Count,Avg
 from django.db.models import CharField, Value,IntegerField, FloatField
 from django.db.models.functions import Cast
 from django.views import generic
 from .models import *
+import numpy as np
 
 # Create your views here.
 
@@ -45,72 +46,171 @@ def sweeps(request,order):
 
 def sweep(request,id):
     ''' Show sweep with given id and list all of its runs'''
+    sweep = Sweep.objects.all().filter(id=id).get()
+    nr_params = sweep.nr_params
     #Return all runs of a given sweep
     runs = Run.objects.all().filter(sweep__id = id)
     #Queryset containing all parameter values for the runs of this sweep (sorted by parameter & val)
     runvalues = RunValue.objects.all().filter(run__in=runs)#.order_by('sweep_parameter','value')
     #FIX for ordering on value
     runvalues = runvalues.annotate(value_as_float=Cast('value',FloatField())).order_by('sweep_parameter','value_as_float')
-    #All global results of all runs for this sweep:
-    grs = GlobalResultScore.objects.all().filter(global_result__run__in = runs)
-    #All defined profiles:
+    renderGraphs = False
+    if nr_params == 1:
+        renderGraphs = True
+        runs = []
+        for runvalue in runvalues:
+            runs.append(runvalue.run)
+        
+    #======NEW PART==========
+    #assume only one runvalue per run (otherwise we can't make 2d plot)
     profiles = Profile.objects.all()
     scores = {}
+    #TO DELETE
     prediction_errors = {}
     baseline_scores = {}
     baseline_prediction_errors = {}
+    #TO DELETE END --
     for profile in profiles:
-        grs_local = grs.filter(profile=profile)
-        # grs_local.annotate(value='')
-        # for grs_local_instance in grs_local:
-        #     grs_local_instance.param_values = Value(RunValue.objects.all().filter(run = grs_local_instance.global_result.run).get(),output_field=FloatField())
-        # grs_local = grs_local.order_by('param_values__value')
-        # print(grs_local)
+        scores[profile.name] = { 'normalized_scores': [],
+                                 'normalized_scores_std': [],
+                                 'prediction_errors': [],
+                                 'prediction_errors_std': [],
+                                 'baseline_scores': [],
+                                 'baseline_prediction_errors': []
+                                 }
+    for run in runs:
+        aggregated_run = _aggregateRun(run)
+        for profile in profiles:
+            scores[profile.name]['normalized_scores'].append(np.mean(aggregated_run[profile.name]['normalized_scores']))
+            scores[profile.name]['normalized_scores_std'].append(np.std(aggregated_run[profile.name]['normalized_scores']))
+            scores[profile.name]['prediction_errors'].append(np.mean(aggregated_run[profile.name]['pred_error_no_anomaly']))
+            scores[profile.name]['prediction_errors_std'].append(np.std(aggregated_run[profile.name]['pred_error_no_anomaly']))
+            if profile.name == "standard":
+                run.normalized_score = round(scores[profile.name]['normalized_scores'][0],2)
+                run.std = round(scores[profile.name]['normalized_scores_std'][0],2)
 
-        # print(profile.name)
-        #print(list(grs_local.values_list('normalized_score',flat=True)))
-        #scores[profile.name] = [instance.normalized_score for instance in grs_local]
-        result_scores = []
-        result_prediction_error = []
-        for runvalue in runvalues:
-            #print(runvalue)
-            result_scores.append(grs_local.filter(global_result__run = runvalue.run).get().normalized_score)
-            result_prediction_error.append(grs_local.filter(global_result__run = runvalue.run).get().global_result.pred_error_no_anomaly)
+    baseline_aggregated_run = _aggregateRun(_getBaseline())
+    baselines = {}
+    for profile in profiles:
+        mean = np.mean(baseline_aggregated_run[profile.name]['normalized_scores'])
+        std = np.std(baseline_aggregated_run[profile.name]['normalized_scores'])
+        baselines[profile.name] = { 'mean': round(mean,2), 'std': round(std,2)}
+        scores[profile.name]['baseline_scores'] = [mean]*len(scores[profile.name]['normalized_scores'])
+        scores[profile.name]['baseline_prediction_errors'] = [np.mean(baseline_aggregated_run[profile.name]['pred_error_no_anomaly'])]*len(scores[profile.name]['prediction_errors'])
+
+    for run in runs:
+        run.std_baseline = ((run.normalized_score/float(baselines["standard"]["mean"]))-1)*100
+        #run.low_fp_baseline = run.normalized_score/float(baselines["reward_low_FP_rate"])
+        #run.low_fn_baseline = run.normalized_score/float(baselines["reward_low_FN_rate"])
+
+
+    #========================
+    # #All global results of all runs for this sweep:
+    # grs = GlobalResultScore.objects.all().filter(global_result__run__in = runs)
+    # #All defined profiles:
+    # profiles = Profile.objects.all()
+    # scores = {}
+    # prediction_errors = {}
+    # baseline_scores = {}
+    # baseline_prediction_errors = {}
+    # for profile in profiles:
+    #     grs_local = grs.filter(profile=profile)
+    #     # grs_local.annotate(value='')
+    #     # for grs_local_instance in grs_local:
+    #     #     grs_local_instance.param_values = Value(RunValue.objects.all().filter(run = grs_local_instance.global_result.run).get(),output_field=FloatField())
+    #     # grs_local = grs_local.order_by('param_values__value')
+    #     # print(grs_local)
+
+    #     # print(profile.name)
+    #     #print(list(grs_local.values_list('normalized_score',flat=True)))
+    #     #scores[profile.name] = [instance.normalized_score for instance in grs_local]
+    #     result_scores = []
+    #     result_prediction_error = []
+    #     for runvalue in runvalues:
+    #         #print(runvalue)
+    #         result_scores.append(grs_local.filter(global_result__run = runvalue.run).get().normalized_score)
+    #         result_prediction_error.append(grs_local.filter(global_result__run = runvalue.run).get().global_result.pred_error_no_anomaly)
             
-        scores[profile.name] = result_scores
-        prediction_errors[profile.name] = result_prediction_error
-        baseline_scores[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().normalized_score]*len(result_scores)
-        baseline_prediction_errors[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().global_result.pred_error_no_anomaly]*len(result_prediction_error)
+    #     scores[profile.name] = result_scores
+    #     prediction_errors[profile.name] = result_prediction_error
+    #     baseline_scores[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().normalized_score]*len(result_scores)
+    #     baseline_prediction_errors[profile.name] = [GlobalResultScore.objects.all().filter(global_result__run = _getBaseline(),profile=profile).get().global_result.pred_error_no_anomaly]*len(result_prediction_error)
     #value_list = list(runvalues.values_list('value',flat=True))
     value_list = [float(x) if not (x[0] == '[') else float(list(x[1:-1].split(','))[1]) for x in list(runvalues.values_list('value',flat=True))]
     score_list = []
     context = {'sweep_id': id, 'runs': runs, 'runvalues': runvalues,
                'x': value_list, 'scores': scores, 'profiles': profiles,
-               'baseline_scores': baseline_scores,
-               'prediction_errors': prediction_errors,
-               'baseline_prediction_errors': baseline_prediction_errors}
+               'renderGraphs': renderGraphs, 'baselines': baselines}
+               # 'baseline_scores': baseline_scores,
+               # 'prediction_errors': prediction_errors,
+               # 'baseline_prediction_errors': baseline_prediction_errors}
     return render(request,'results/sweep.html',context)
+
+def _aggregateRun(run):
+    ''' This function returns a dictionary for the given run, with an entry for each profile.
+    Each profile contains the normalized score among all seed combinations as well as the normal
+    score, tp,tn,fp and fn. '''
+    #Return all global results for run (with possibly different seeds)
+    global_results = GlobalResult.objects.all().filter(run = run)
+    profiles = Profile.objects.all()
+    result = {}
+    for profile in profiles:
+        normalized_scores = []
+        scores = []
+        pred_error_no_anomaly = []
+        pred_error_during_anomaly = []
+        tp = []
+        tn = []
+        fp = []
+        fn = []
+        for global_result in global_results:
+            global_result_score = GlobalResultScore.objects.all().filter(global_result=global_result,
+                                                                         profile=profile).get() #unique        
+            normalized_scores.append(global_result_score.normalized_score)
+            scores.append(global_result_score.score)
+            pred_error_no_anomaly.append(global_result.pred_error_no_anomaly)
+            pred_error_during_anomaly.append(global_result.pred_error_during_anomaly)
+            tp.append(global_result_score.true_positives)
+            tn.append(global_result_score.true_negatives)
+            fp.append(global_result_score.false_positives)
+            fn.append(global_result_score.false_negatives)
+        
+        result[profile.name] = { 'normalized_scores': normalized_scores,
+                                 'scores': scores,
+                                 'pred_error_no_anomaly': pred_error_no_anomaly,
+                                 'pred_error_during_anomaly': pred_error_during_anomaly,
+                                 'true_positives': tp,
+                                 'true_negatives': tn,
+                                 'false_positives': fp,
+                                 'false_negatives': fn
+                                 }
+    return result
 
 def run(request,id):
     ''' Show run with given id and list all results (local + global) '''
     #All local results for this run (one per dataset)
     local_results = LocalResult.objects.all().filter(run__id = id)
     #The global result for this run
-    global_result = GlobalResult.objects.all().filter(run__id = id)
-    assert(global_result.count() == 1)
+    global_results = GlobalResult.objects.all().filter(run__id = id)
+    avg_global_result = GlobalResult(run = global_results[0].run,
+                                     seeds = global_results[0].seeds,
+                                     pred_error_no_anomaly = global_results.aggregate(Avg('pred_error_no_anomaly'))['pred_error_no_anomaly__avg'],
+                                     pred_error_during_anomaly = global_results.aggregate(Avg('pred_error_during_anomaly'))['pred_error_during_anomaly__avg'])
+
+    #assert(global_result.count() == 1)
     #There can only be one global result per run. So we select this object:
-    global_result = global_result.get()
+    #global_result = global_result.get()
     #Get all local result scores for this run (one per profile)
     local_scores = LocalResultScore.objects.all().filter(local_result__run__id = id)
     #Get all global result scores for this run (one per profile)
-    global_scores = GlobalResultScore.objects.all().filter(global_result=global_result)
+    global_scores = GlobalResultScore.objects.all().filter(global_result__in=global_results)
     
     #global_scores = global_scores.annotate(total_score=Value(3,output_field=IntegerField()))
     #global_scores, global_result, local_scores = _aggregateGlobal(id,True)
     #Baseline scores:
     #b_global_scores, b_global_result, b_local_scores = _aggregateGlobal(_getBaseLine().id)
-    _addGlobalResultBaseline(global_result)
-    _addGlobalScoresBaseline(global_scores)
+    #_addGlobalResultBaseline(global_result)
+    #_addGlobalScoresBaseline(global_scores)
     baseline_id = _getBaseline().id
     #Indicate whether this run is the original NAB parameter set
     original = (baseline_id == id)
@@ -121,7 +221,7 @@ def run(request,id):
                'original': original,
                'global_scores': global_scores,
                'local_scores': local_scores, 
-               'global_result': global_result,
+               'global_result': avg_global_result,#global_result,
                'runvalues': runvalues}
                # 'b_global_scores': b_global_scores,
                # 'b_global_result': b_global_result,

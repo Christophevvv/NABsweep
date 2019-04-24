@@ -4,10 +4,22 @@
 {% block content %}
 <h1>Sweep with id {{ sweep_id }}</h1>
 <hr>
+<p> All results are with respect to the standard settings NAB run: </p>
+{% for profile in profiles %}
+{% for key,val in baselines.items %}
+{% if key == profile.name %}
+<p>
+{{ profile.name }} :
+{{ val.mean }} , std={{ val.std }}
+</p>
+{% endif %}
+{% endfor %}
+{% endfor %}
 <table name="sortableTable" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
   <thead>
     <tr>
       <th class="th-sm"> Run ID </th>
+      <th class="th-sm"> Standard Normalized score (with std) </th>
       {% for run in runs %}
       {% if forloop.first %}
       {% for runvalue in runvalues %}
@@ -24,7 +36,19 @@
 	<a href="{% url 'results:run' run.id %}">
 	  {{ run.id }}
 	</a>
-      </td>    
+      </td>
+      <td>
+	{{ run.normalized_score }} ({{run.std}})
+	{% with result=run.std_baseline %}
+	{% if result >= 0 %}
+	<span class="badge badge-success">+
+	{% else %}
+	<span class="badge badge-danger">
+	{% endif %}
+	{{ result | floatformat:2 }}%
+	</span>
+	{% endwith %}	
+      </td>
       {% for runvalue in runvalues %}
       {% if runvalue.run.id == run.id %}
       <td>
@@ -36,6 +60,7 @@
     {% endfor %}
   </tbody>
 </table>
+{% if renderGraphs %}
 <div class="row">
   <div class="col-sm-6">
     <h2>Normalized scores</h2>
@@ -54,6 +79,9 @@
     {% endfor %}    
   </div>
 </div>
+{% else %}
+<p> Since there is more than one parameter, we can not render a 2D plot of the results. </p>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
@@ -76,16 +104,16 @@
           label: 'Normalized score',
 	  {% for key,val in scores.items %}
 	  {% if key == profile.name %}
-          data: {{ val }},
+          data: {{ val.normalized_scores }},
 	  {% endif %}
 	  {% endfor %}
           borderWidth: 1,
         },
 	{
 	    label: 'baseline',
-	    {% for key,val in baseline_scores.items %}
+	    {% for key,val in scores.items %}
 	    {% if key == profile.name %}
-	    data : {{ val }},
+	    data : {{ val.baseline_scores }},
 	    {% endif %}
 	    {% endfor %}	    
 	    backgroundColor: [
@@ -118,18 +146,18 @@
 	labels: {{ x }},
 	datasets: [{
           label: 'Prediction error',
-	  {% for key,val in prediction_errors.items %}
+	  {% for key,val in scores.items %}
 	  {% if key == profile.name %}
-          data: {{ val }},
+          data: {{ val.prediction_errors }},
 	  {% endif %}
 	  {% endfor %}
           borderWidth: 1,
         },
 	{
 	    label: 'baseline',
-	    {% for key,val in baseline_prediction_errors.items %}
+	    {% for key,val in scores.items %}
 	    {% if key == profile.name %}
-	    data : {{ val }},
+	    data : {{ val.baseline_prediction_errors }},
 	    {% endif %}
 	    {% endfor %}	    
 	    backgroundColor: [
