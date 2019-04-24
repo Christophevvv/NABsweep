@@ -74,7 +74,7 @@ class ParameterSweep:
         linear_parameters = {}
         nonlinear_parameters = []
         for parameter in parameters:
-            if parameter['linear'] == True:
+            if "linear" in parameter and parameter['linear'] == True:
                 if "linear_group" in parameter:
                     if parameter["linear_group"] in linear_parameters:
                         linear_parameters[parameter["linear_group"]].append(parameter)
