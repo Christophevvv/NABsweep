@@ -86,8 +86,8 @@ def sweep(request,id):
             scores[profile.name]['prediction_errors'].append(np.mean(aggregated_run[profile.name]['pred_error_no_anomaly']))
             scores[profile.name]['prediction_errors_std'].append(np.std(aggregated_run[profile.name]['pred_error_no_anomaly']))
             if profile.name == "standard":
-                run.normalized_score = round(scores[profile.name]['normalized_scores'][0],2)
-                run.std = round(scores[profile.name]['normalized_scores_std'][0],2)
+                run.normalized_score = round(scores[profile.name]['normalized_scores'][-1],2)
+                run.std = round(scores[profile.name]['normalized_scores_std'][-1],2)
 
     baseline_aggregated_run = _aggregateRun(_getBaseline())
     baselines = {}
