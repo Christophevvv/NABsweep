@@ -175,8 +175,11 @@ class Command(BaseCommand):
         #link parameter values to this run
         for i in range(0,len(paramObjects)):
             sp = SweepParameter.objects.get(parameter__id = paramObjects[i].id, sweep__id=sweepObject.id)
-            rv = RunValue(run = r,sweep_parameter = sp,value = params[i]['range'])
-            rv.save()
+            for param in params:
+                if param['name'] == paramObjects[i].name and param['group'] == paramObjects[i].group:
+                    rv = RunValue(run = r,sweep_parameter = sp,value = param['range'])
+                    rv.save()
+                    break
         return r
 
     def getProfile(self,profile):
