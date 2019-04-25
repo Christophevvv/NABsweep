@@ -50,7 +50,7 @@
 	       "linear_group": "columns"
 	   },
 	   {
-	       "name": "minTreshold",
+	       "name": "minThreshold",
 	       "group": "tmParams",
 	       "range": [1,2,5,10,20,40,80],
 	       "linear": true,
