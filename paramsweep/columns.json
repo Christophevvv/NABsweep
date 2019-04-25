@@ -17,16 +17,51 @@
 	   {
 	       "name": "columnCount",
 	       "group": "spParams",
-	       "range": [128,256,512,1024,2048,4096,8192,16384],
+	       "range": [256,512,1024,2048,4096,8192,16384],
 	       "linear": true,
 	       "linear_group": "columns"
 	   },
 	   {
 	       "name": "columnCount",
 	       "group": "tmParams",
-	       "range": [128,256,512,1024,2048,4096,8192,16384],
+	       "range": [256,512,1024,2048,4096,8192,16384],
 	       "linear": true,
 	       "linear_group": "columns"	       
+	   },
+	   {
+	       "name": "numActiveColumnsPerInhArea",
+	       "group": "spParams",
+	       "range": [5,10,20,40,80,160,320],
+	       "linear": true,
+	       "linear_group": "columns"
+	   },
+	   {
+	       "name": "newSynapseCount",
+	       "group": "tmParams",
+	       "range": [2,5,10,20,40,80,160],
+	       "linear": true,
+	       "linear_group": "columns"
+	   },	   
+	   {
+	       "name": "activationThreshold",
+	       "group": "tmParams",
+	       "range": [2,4,6,13,26,52,104],
+	       "linear": true,
+	       "linear_group": "columns"
+	   },
+	   {
+	       "name": "minTreshold",
+	       "group": "tmParams",
+	       "range": [1,2,5,10,20,40,80],
+	       "linear": true,
+	       "linear_group": "columns"
+	   },	   
+	   {
+	       "name": "maxSynapsesPerSegment",
+	       "group": "tmParams",
+	       "range": [4,8,16,32,64,128,256],
+	       "linear": true,
+	       "linear_group": "columns"
 	   },
 	   {
 	       "name": "seed",
