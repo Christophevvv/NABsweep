@@ -55,14 +55,14 @@
 	   {
 	       "name": "n",
 	       "group": "valueEncoder",
-	       "range": [21,31,43]
+	       "range": [21,31,43],
 	       "linear": true,
 	       "linear_group": "encoder"	       
 	   },
 	   {
 	       "name": "timeOfDay",
 	       "group": "timestampEncoder",
-	       "range": [[21,9.49],[31,9.49],[43,9.49]]
+	       "range": [[21,9.49],[31,9.49],[43,9.49]],
 	       "linear": true,
 	       "linear_group": "encoder"	       
 	   },	   
@@ -95,7 +95,7 @@
 	   {
 	       "name": "timeOfDay",
 	       "group": "timestampEncoder",
-	       "range": [[21,2],[21,3],[21,4],[21,5],[21,6],[21,7],[21,8],[21,9],[21,9.49],[21,10],[21,11],[21,12]]
+	       "range": [[21,2],[21,3],[21,4],[21,5],[21,6],[21,7],[21,8],[21,9],[21,9.49],[21,10],[21,11],[21,12]],
 	       "linear": true,
 	       "linear_group": "encoder"	       
 	   },	   
