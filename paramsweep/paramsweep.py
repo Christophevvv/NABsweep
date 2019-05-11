@@ -25,6 +25,10 @@ class ParameterSweep:
         self.config_location = os.path.join(self.NAB,params['general']['config_location'])
         self.output_config_location = os.path.join(self.NAB,params['general']['output_config_location'])
         self.output_parameter_values = os.path.join(self.django,params['general']['output_parameter_values'])
+        if 'detectorname' in params['general']:
+            self.detectorname = str(params['general']['detectorname'])
+        else:
+            self.detectorname = "numenta"
         self.verbosity = params['verbosity']
         self.nr_sweeps = len(params['sweeps'])
         logging.basicConfig(filename='paramsweep.log',format='%(asctime)s %(message)s',level=logging.DEBUG)
@@ -296,7 +300,7 @@ class ParameterSweep:
     def runNAB(self):
         ''' Run NAB as a different process and wait for it to return '''
         try:
-            print(subprocess.check_output([self.params['general']['python2'],"run.py","-d","null","numenta","-m",str(self.params['general']['output_config_location']),"--skipConfirmation"],cwd=self.NAB))#,stderr=subprocess.STDOUT,shell=True))
+            print(subprocess.check_output([self.params['general']['python2'],"run.py","-d","null",self.detectorname,"-m",str(self.params['general']['output_config_location']),"--skipConfirmation"],cwd=self.NAB))#,stderr=subprocess.STDOUT,shell=True))
         except subprocess.CalledProcessError as e:
             print("Error occured while running following command: " + str(e.cmd))
             print(e.output)
@@ -309,7 +313,7 @@ class ParameterSweep:
     def addResult(self):
         ''' Call addResult in django project that adds the current run to database '''
         try:
-            print(subprocess.check_output([self.params['general']['python3'],os.path.join(self.django,"manage.py"),"addresult","--parametersFile",self.output_parameter_values]))
+            print(subprocess.check_output([self.params['general']['python3'],os.path.join(self.django,"manage.py"),"addresult","--parametersFile",self.output_parameter_values,"--detectorname",self.detectorname]))
         except subprocess.CalledProcessError as e:
             print("Error occured while running following command: " + str(e.cmd))
             print(e.output)
@@ -328,16 +332,16 @@ class ParameterSweep:
         ''' Write parameter + value to config (=json object) '''
         group = parameter['group']
         if group == "":
-            config['numenta']['modelConfig']['modelParams'][parameter['name']] = value
-        elif group in ['spParams','tmParams']:
-            config['numenta']['modelConfig']['modelParams'][group][parameter['name']] = value
+            config[self.detectorname]['modelConfig']['modelParams'][parameter['name']] = value
+        elif group in ['spParams','tmParams','corticalcolumn']:
+            config[self.detectorname]['modelConfig']['modelParams'][group][parameter['name']] = value
         else: #encoder
             if group == 'valueEncoder':
-                config['numenta']['modelConfig']['modelParams']['sensorParams']['encoders']['value'][parameter['name']] = value
+                config[self.detectorname]['modelConfig']['modelParams']['sensorParams']['encoders']['value'][parameter['name']] = value
             elif group == 'timestampEncoder':
-                config['numenta']['modelConfig']['modelParams']['sensorParams']['encoders']['timestamp_timeOfDay'][parameter['name']] = value
+                config[self.detectorname]['modelConfig']['modelParams']['sensorParams']['encoders']['timestamp_timeOfDay'][parameter['name']] = value
             else:
-                config['numenta']['modelConfig']['modelParams']['sensorParams']['encoders'][group][parameter['name']] = value
+                config[self.detectorname]['modelConfig']['modelParams']['sensorParams']['encoders'][group][parameter['name']] = value
 
     def saveParameterValues(self,location):
         print(self.parameter_values)
