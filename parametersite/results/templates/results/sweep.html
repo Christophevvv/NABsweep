@@ -20,6 +20,8 @@
     <tr>
       <th class="th-sm"> Run ID </th>
       <th class="th-sm"> Standard Normalized score (with std) </th>
+      <th class="th-sm"> Low FP Normalized score (with std) </th>
+      <th class="th-sm"> Low FN Normalized score (with std) </th>      
       {% for run in runs %}
       {% if forloop.first %}
       {% for runvalue in runvalues %}
@@ -49,6 +51,30 @@
 	</span>
 	{% endwith %}	
       </td>
+      <td>
+	{{ run.normalized_score_low_FP }} ({{run.std_low_FP}})
+	{% with result=run.low_fp_baseline %}
+	{% if result >= 0 %}
+	<span class="badge badge-success">+
+	{% else %}
+	<span class="badge badge-danger">
+	{% endif %}
+	{{ result | floatformat:2 }}%
+	</span>
+	{% endwith %}	
+      </td>
+      <td>
+	{{ run.normalized_score_low_FN }} ({{run.std_low_FN}})
+	{% with result=run.low_fn_baseline %}
+	{% if result >= 0 %}
+	<span class="badge badge-success">+
+	{% else %}
+	<span class="badge badge-danger">
+	{% endif %}
+	{{ result | floatformat:2 }}%
+	</span>
+	{% endwith %}	
+      </td>      
       {% for runvalue in runvalues %}
       {% if runvalue.run.id == run.id %}
       <td>

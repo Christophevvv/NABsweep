@@ -16,9 +16,17 @@ class Command(BaseCommand):
             required=True,
             help='File that contains the parameters + values for this run'
             )
+        parser.add_argument(
+            '--detectorname',
+            dest='detectorname',
+            required=False,
+            default="numenta",
+            help='The detector for which we want to add a result.'
+            )        
         
     def handle(self, *args, **options):
         paramFile = options['parametersFile']
+        self.detectorname = options['detectorname']
         print(paramFile)
         try:
             params_json = json.load(open(paramFile,'r'))
@@ -201,7 +209,7 @@ class Command(BaseCommand):
         return p
 
     def processLocalResults(self,runObject,seedsObject,updateRun):
-        p = Processor()
+        p = Processor(detectorName=self.detectorname)
         #create localresult scores for each profile (pandas DataFrame)
         localProfileScores = p.getLocalProfileResults()
         #Get all profiles for which we want to produce results
@@ -305,7 +313,7 @@ class Command(BaseCommand):
     def processGlobalResults(self,runObject,seedsObject,updateRun):
         #Get all profiles for which we want to produce results
         #profileObjects = []
-        p = Processor()
+        p = Processor(detectorName=self.detectorname)
         thresholds = p.getThresholds()
         final_results = p.getFinalResults()
         gr = self.getGlobalResult(runObject,seedsObject)

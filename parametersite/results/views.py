@@ -88,6 +88,13 @@ def sweep(request,id):
             if profile.name == "standard":
                 run.normalized_score = round(scores[profile.name]['normalized_scores'][-1],2)
                 run.std = round(scores[profile.name]['normalized_scores_std'][-1],2)
+            elif profile.name == "reward_low_FP_rate":
+                run.normalized_score_low_FP = round(scores[profile.name]['normalized_scores'][-1],2)
+                run.std_low_FP = round(scores[profile.name]['normalized_scores_std'][-1],2)
+            elif profile.name == "reward_low_FN_rate":
+                run.normalized_score_low_FN = round(scores[profile.name]['normalized_scores'][-1],2)
+                run.std_low_FN = round(scores[profile.name]['normalized_scores_std'][-1],2)
+                
 
     baseline_aggregated_run = _aggregateRun(_getBaseline())
     baselines = {}
@@ -100,8 +107,8 @@ def sweep(request,id):
 
     for run in runs:
         run.std_baseline = ((run.normalized_score/float(baselines["standard"]["mean"]))-1)*100
-        #run.low_fp_baseline = run.normalized_score/float(baselines["reward_low_FP_rate"])
-        #run.low_fn_baseline = run.normalized_score/float(baselines["reward_low_FN_rate"])
+        run.low_fp_baseline = ((run.normalized_score_low_FP/float(baselines["reward_low_FP_rate"]["mean"]))-1)*100
+        run.low_fn_baseline = ((run.normalized_score_low_FN/float(baselines["reward_low_FN_rate"]["mean"]))-1)*100
 
 
     #========================
