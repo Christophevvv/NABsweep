@@ -54,7 +54,7 @@
 	   {
 	       "name": "ApicalModulation",
 	       "group": "corticalcolumn",
-	       "range": [0]
+	       "range": [0,1]
 	   },
 	   {
 	       "name": "timeOfDay",
