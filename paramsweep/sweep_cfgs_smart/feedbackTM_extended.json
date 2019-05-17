@@ -33,21 +33,21 @@
 	   {
 	       "name": "seed",
 	       "group": "spParams",
-	       "range": [1956,1,2,3,4],
+	       "range": [5,6,7,8,9,10],
 	       "linear": true,
 	       "linear_group": "seeds"	       
 	   },
 	   {
 	       "name": "seed",
 	       "group": "tmParams",
-	       "range": [1960,11,12,13,14],
+	       "range": [15,16,17,18,19,20],
 	       "linear": true,
 	       "linear_group": "seeds"	       
 	   },
 	   {
 	       "name": "seed",
 	       "group": "valueEncoder",
-	       "range": [42,21,22,23,24],
+	       "range": [25,26,27,28,29,30],
 	       "linear": true,
 	       "linear_group": "seeds"	       
 	   }	   
@@ -90,28 +90,28 @@
 	       "name": "IndependentApical",
 	       "group": "corticalcolumn",
 	       "range": [0,1]
-	   },	   	   
+	   },
 	   {
 	       "name": "seed",
 	       "group": "spParams",
-	       "range": [1956,1,2],
+	       "range": [3,4,5,6,7,8,9,10],
 	       "linear": true,
 	       "linear_group": "seeds"	       
 	   },
 	   {
 	       "name": "seed",
 	       "group": "tmParams",
-	       "range": [1960,11,12],
+	       "range": [13,14,15,16,17,18,19,20],
 	       "linear": true,
 	       "linear_group": "seeds"	       
 	   },
 	   {
 	       "name": "seed",
 	       "group": "valueEncoder",
-	       "range": [42,21,22],
+	       "range": [23,24,25,26,27,28,29,30],
 	       "linear": true,
 	       "linear_group": "seeds"	       
-	   }	   
+	   }	   	   
        ]
       }
   ]
