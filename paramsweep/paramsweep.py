@@ -335,6 +335,8 @@ class ParameterSweep:
             config[self.detectorname]['modelConfig']['modelParams'][parameter['name']] = value
         elif group in ['spParams','tmParams','corticalcolumn']:
             config[self.detectorname]['modelConfig']['modelParams'][group][parameter['name']] = value
+        elif group in ['generic']:
+            config[self.detectorname][group][parameter['name']] = value
         else: #encoder
             if group == 'valueEncoder':
                 config[self.detectorname]['modelConfig']['modelParams']['sensorParams']['encoders']['value'][parameter['name']] = value
