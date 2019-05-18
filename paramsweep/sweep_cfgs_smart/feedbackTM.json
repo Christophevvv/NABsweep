@@ -28,8 +28,38 @@
 	   {
 	       "name": "enableFeedback",
 	       "group": "corticalcolumn",
+	       "range": [1]
+	   },
+	   {
+	       "name": "enableSpatialTrick",
+	       "group": "corticalcolumn",
+	       "range": [1]
+	   },
+	   {
+	       "name": "valueOnly",
+	       "group": "corticalcolumn",
+	       "range": [1]
+	   },
+	   {
+	       "name": "ApicalModulation",
+	       "group": "corticalcolumn",
+	       "range": [0]
+	   },
+	   {
+	       "name": "ApicalTiebreak",
+	       "group": "corticalcolumn",
 	       "range": [0,1]
-	   },	   
+	   },
+	   {
+	       "name": "ApicalMatch",
+	       "group": "corticalcolumn",
+	       "range": [0]
+	   },	   	   
+	   {
+	       "name": "IndependentApical",
+	       "group": "corticalcolumn",
+	       "range": [1]
+	   },	   	   	   	   
 	   {
 	       "name": "seed",
 	       "group": "spParams",
@@ -57,63 +87,38 @@
        "parameters":
        [
 	   {
-	       "name": "smartResolution",
-	       "group": "corticalcolumn",
-	       "range": [1]
-	   },	   
-	   {
-	       "name": "enableFeedback",
+	       "name": "enableSpatialTrick",
 	       "group": "corticalcolumn",
 	       "range": [1]
 	   },
-	   {
-	       "name": "apicalMatch",
-	       "group": "corticalcolumn",
-	       "range": [0,1]
-	   },	   
 	   {
 	       "name": "valueOnly",
 	       "group": "corticalcolumn",
 	       "range": [0,1]
 	   },
 	   {
-	       "name": "ApicalModulation",
-	       "group": "corticalcolumn",
-	       "range": [0,1]
-	   },
-	   {
-	       "name": "ApicalTiebreak",
-	       "group": "corticalcolumn",
-	       "range": [0,1]
-	   },
-	   {
-	       "name": "IndependentApical",
-	       "group": "corticalcolumn",
-	       "range": [0,1]
-	   },	   	   
-	   {
 	       "name": "seed",
 	       "group": "spParams",
-	       "range": [1956,1,2],
+	       "range": [1956,1,2,3,4],
 	       "linear": true,
 	       "linear_group": "seeds"	       
 	   },
 	   {
 	       "name": "seed",
 	       "group": "tmParams",
-	       "range": [1960,11,12],
+	       "range": [1960,11,12,13,14],
 	       "linear": true,
 	       "linear_group": "seeds"	       
 	   },
 	   {
 	       "name": "seed",
 	       "group": "valueEncoder",
-	       "range": [42,21,22],
+	       "range": [42,21,22,23,24],
 	       "linear": true,
 	       "linear_group": "seeds"	       
 	   }	   
        ]
-      }
+      }      
   ]
 }  
     
