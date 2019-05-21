@@ -135,6 +135,35 @@
   {% endfor %}
 </table>
 <hr>
+
+<h2>Local results categories:</h2>
+{% for profile in profiles %}
+{% for key, values in dataset_scores.items %}
+{% if key == profile.name %}
+<h5> Profile: {{ profile.name }} </h5>
+<table name="sortableTable" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+  <thead>
+    <tr>
+      <th class="th-sm"> Category </th>
+      <th class="th-sm"> avg_score </th>
+    </tr>
+  </thead>
+  <tbody>
+{% for category, score in values.items %}
+    <tr>
+    <td> {{ category }} </td>
+    <td> {{ score }} </td>
+    </tr>
+{% endfor %}    
+  </tbody>
+</table>
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+
+
+
 <h2>Local results:</h2>
 {% for profile in profiles %}
 <h5> Profile: {{ profile.name }} </h5>

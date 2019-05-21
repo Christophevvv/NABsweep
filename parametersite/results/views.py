@@ -222,6 +222,18 @@ def run(request,id):
     #Indicate whether this run is the original NAB parameter set
     original = (baseline_id == id)
     profiles = Profile.objects.all()
+
+    avg_dataset_scores = {}
+    for profile in profiles:
+        categories = {}
+        for category in Category.objects.all():
+            #all local results for datasets in given category:
+            lr_dataset = local_results.filter(dataset__category = category)
+            lrs_p = LocalResultScore.objects.all().filter(profile=profile,local_result__in=lr_dataset)
+            avg_score = lrs_p.aggregate(Avg('score'))['score__avg']
+            categories[category.name] = avg_score
+        avg_dataset_scores[profile.name]=categories
+            
     
     runvalues = RunValue.objects.all().filter(run__id = id).order_by('sweep_parameter__parameter__group')
     context = {'run_id' : id, 'profiles': profiles, 'baseline_id': baseline_id,
@@ -229,6 +241,7 @@ def run(request,id):
                'global_scores': global_scores,
                'local_scores': local_scores, 
                'global_result': avg_global_result,#global_result,
+               'dataset_scores': avg_dataset_scores,
                'runvalues': runvalues}
                # 'b_global_scores': b_global_scores,
                # 'b_global_result': b_global_result,
