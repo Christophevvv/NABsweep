@@ -16,7 +16,7 @@
        "parameters":
        [
 	   {
-	       "name": "PermanenceDec",
+	       "name": "permanenceDec",
 	       "group": "tmParams",
 	       "range": [0,0.005,0.02,0.05,0.1,0.15,0.2],
 	       "linear": true,
@@ -49,7 +49,7 @@
        "parameters":
        [
 	   {
-	       "name": "PermanenceInc",
+	       "name": "permanenceInc",
 	       "group": "tmParams",
 	       "range": [0.05,0.1,0.15,0.2,0.25,0.3],
 	       "linear": true,
@@ -82,14 +82,14 @@
        "parameters":
        [
 	   {
-	       "name": "PermanenceDec",
+	       "name": "permanenceDec",
 	       "group": "tmParams",
 	       "range": [0.01,0.05,0.1,0.15,0.2,0.3,0.05,0.1,0.15,0],
 	       "linear": true,
 	       "linear_group": "permanence"
 	   },
 	   {
-	       "name": "PermanenceInc",
+	       "name": "permanenceInc",
 	       "group": "tmParams",
 	       "range": [0.01,0.05,0.1,0.15,0.2,0.3,0.1,0.2,0.3,0.5],
 	       "linear": true,
