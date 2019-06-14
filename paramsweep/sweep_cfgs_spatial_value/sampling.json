@@ -1,0 +1,186 @@
+{ "general":
+  {
+      "NAB_location": "../NAB/",
+      "config_location": "config/detectorparams2.json",
+      "output_config_location": "config/paramsweep_detectorparams.json",
+      "django_location": "../parametersite/",
+      "output_parameter_values": "parametervalues.json",
+      "python3": "python3",
+      "python2": "python2",
+      "detectorname": "numenta"      
+  },
+  "verbosity": 1,
+  "sweeps":
+  [
+      {"MultiParameter": true,
+       "parameters":
+       [
+	   {
+	       "name": "activationThreshold",
+	       "group": "tmParams",
+	       "range": [10,13,14,15,16,17,18,19,20]
+	   },
+	   {
+	       "name": "seed",
+	       "group": "spParams",
+	       "range": [1956,1,2,3,4,5,6,7,8,9,10],
+	       "linear": true,
+	       "linear_group": "seeds"
+	   },
+	   {
+	       "name": "seed",
+	       "group": "tmParams",
+	       "range": [1960,11,12,13,14,15,16,17,18,19,20],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   },
+	   {
+	       "name": "seed",
+	       "group": "valueEncoder",
+	       "range": [42,21,22,23,24,25,26,27,28,29,30],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   }	   
+       ]
+      },
+      {"MultiParameter": true,
+       "parameters":
+       [
+	   {
+	       "name": "newSynapseCount",
+	       "group": "tmParams",
+	       "range": [20]
+	   },
+	   {
+	       "name": "activationThreshold",
+	       "group": "tmParams",
+	       "range": [13,16,20],
+	       "linear": true,
+	       "linear_group": "threshold"
+	   },
+	   {
+	       "name": "minThreshold",
+	       "group": "tmParams",
+	       "range": [10,13,16],
+	       "linear": true,
+	       "linear_group": "threshold"
+
+	   },	   	   
+	   {
+	       "name": "seed",
+	       "group": "spParams",
+	       "range": [1956,1,2,3,4,5,6,7,8,9,10],
+	       "linear": true,
+	       "linear_group": "seeds"
+	   },
+	   {
+	       "name": "seed",
+	       "group": "tmParams",
+	       "range": [1960,11,12,13,14,15,16,17,18,19,20],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   },
+	   {
+	       "name": "seed",
+	       "group": "valueEncoder",
+	       "range": [42,21,22,23,24,25,26,27,28,29,30],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   }	   
+       ]
+      },
+      {"MultiParameter": true,
+       "parameters":
+       [
+	   {
+	       "name": "newSynapseCount",
+	       "group": "tmParams",
+	       "range": [30,40],
+	       "linear": true,
+	       "linear_group": "threshold"
+	       
+	   },	   
+	   {
+	       "name": "activationThreshold",
+	       "group": "tmParams",
+	       "range": [20,26],
+	       "linear": true,
+	       "linear_group": "threshold"
+	   },
+	   {
+	       "name": "minThreshold",
+	       "group": "tmParams",
+	       "range": [15,20],
+	       "linear": true,
+	       "linear_group": "threshold"
+
+	   },
+	   {
+	       "name": "maxSynapsesPerSegment",
+	       "group": "tmParams",
+	       "range": [48,64],
+	       "linear": true,
+	       "linear_group": "threshold"
+	       
+	   },	   	   
+	   {
+	       "name": "seed",
+	       "group": "spParams",
+	       "range": [1956,1,2,3,4,5,6,7,8,9,10],
+	       "linear": true,
+	       "linear_group": "seeds"
+	   },
+	   {
+	       "name": "seed",
+	       "group": "tmParams",
+	       "range": [1960,11,12,13,14,15,16,17,18,19,20],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   },
+	   {
+	       "name": "seed",
+	       "group": "valueEncoder",
+	       "range": [42,21,22,23,24,25,26,27,28,29,30],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   }	   
+       ]
+      },
+      {"MultiParameter": true,
+       "parameters":
+       [
+	   {
+	       "name": "maxSynapsesPerSegment",
+	       "group": "tmParams",
+	       "range": [32,48,64,128]
+	   },
+	   {
+	       "name": "maxSegmentsPerCell",
+	       "group": "tmParams",
+	       "range": [128,256]
+	   },	   	   	   
+	   {
+	       "name": "seed",
+	       "group": "spParams",
+	       "range": [1956,1,2,3,4,5,6,7,8,9,10],
+	       "linear": true,
+	       "linear_group": "seeds"
+	   },
+	   {
+	       "name": "seed",
+	       "group": "tmParams",
+	       "range": [1960,11,12,13,14,15,16,17,18,19,20],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   },
+	   {
+	       "name": "seed",
+	       "group": "valueEncoder",
+	       "range": [42,21,22,23,24,25,26,27,28,29,30],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   }	   
+       ]
+      }            
+  ]
+}  
