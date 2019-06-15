@@ -32,7 +32,7 @@
 	   {
 	       "name": "valueOnly",
 	       "group": "generic",
-	       "range": [1],
+	       "range": [1]
 	   },	   
 	   {
 	       "name": "seed",
@@ -104,7 +104,7 @@
 	       "range": [1]
 	   },
 	   {
-	       "name": "n",
+	       "name": "w",
 	       "group": "valueEncoder",
 	       "range": [29,31,43,51],
 	       "linear": true,
@@ -132,8 +132,43 @@
 	       "linear_group": "seeds"	       
 	   }	   
        ]
-      }      
-      
+      },
+      {"MultiParameter": true,
+       "parameters":
+       [
+	   {
+	       "name": "valueOnly",
+	       "group": "generic",
+	       "range": [1]
+	   },
+	   {
+	       "name": "type",
+	       "group": "valueEncoder",
+	       "range": ["scalarEncoder"]
+	   },	   
+	   {
+	       "name": "seed",
+	       "group": "spParams",
+	       "range": [1956,1,2,3,4,5,6,7,8,9,10],
+	       "linear": true,
+	       "linear_group": "seeds"
+	   },
+	   {
+	       "name": "seed",
+	       "group": "tmParams",
+	       "range": [1960,11,12,13,14,15,16,17,18,19,20],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   },
+	   {
+	       "name": "seed",
+	       "group": "valueEncoder",
+	       "range": [42,21,22,23,24,25,26,27,28,29,30],
+	       "linear": true,
+	       "linear_group": "seeds"	       
+	   }	   
+       ]
+      }            
   ]
 }  
     
