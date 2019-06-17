@@ -38,7 +38,7 @@
 	   {
 	       "name": "nrBuckets",
 	       "group": "generic",
-	       "range": [100,130,150]
+	       "range": [100,130,150,200]
 	   },	   	   	   	   
 	   {
 	       "name": "seed",
