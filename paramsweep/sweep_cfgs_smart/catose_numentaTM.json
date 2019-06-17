@@ -1,13 +1,13 @@
 { "general":
   {
       "NAB_location": "../NAB/",
-      "config_location": "config/detectorparams2.json",
+      "config_location": "config/detectorparams_numentaTM.json",
       "output_config_location": "config/paramsweep_detectorparams.json",
       "django_location": "../parametersite/",
       "output_parameter_values": "parametervalues.json",
       "python3": "python3",
       "python2": "python2",
-      "detectorname": "numenta"
+      "detectorname": "numentaTM"
   },
   "verbosity": 1,
   "sweeps":
