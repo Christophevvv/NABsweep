@@ -21,6 +21,11 @@
 	       "range": [1]
 	   },
 	   {
+	       "name": "enableSpatialTrick",
+	       "group": "corticalcolumn",
+	       "range": [1]
+	   },	   
+	   {
 	       "name": "valueOnly",
 	       "group": "corticalcolumn",
 	       "range": [1]
@@ -63,7 +68,7 @@
 	   {
 	       "name": "nrBuckets",
 	       "group": "corticalcolumn",
-	       "range": [90]
+	       "range": [90,130]
 	   },	   	    	   
    
 	   {
