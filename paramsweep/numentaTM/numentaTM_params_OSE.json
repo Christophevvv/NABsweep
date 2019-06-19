@@ -67,37 +67,37 @@
 	   },
 	   {
 	       "name": "OSE",
-	       "group": "tmParams",
+	       "group": "generic",
 	       "range": [1]
 	   },
 	   {
 	       "name": "rescaleOSE",
-	       "group": "tmParams",
+	       "group": "generic",
 	       "range": [1]
 	   },
 	   {
 	       "name": "smartResolution",
-	       "group": "tmParams",
+	       "group": "generic",
 	       "range": [1]
 	   },
 	   {
 	       "name": "missingValues",
-	       "group": "tmParams",
+	       "group": "generic",
 	       "range": [1]
 	   },
 	   {
 	       "name": "missingThreshold",
-	       "group": "tmParams",
+	       "group": "generic",
 	       "range": [3,5]
 	   },
 	   {
 	       "name": "ignoreReset",
-	       "group": "tmParams",
+	       "group": "generic",
 	       "range": [1]
 	   },
 	   {
 	       "name": "nrBuckets",
-	       "group": "tmParams",
+	       "group": "generic",
 	       "range": [100,130,160]
 	   },	   
 	   {
