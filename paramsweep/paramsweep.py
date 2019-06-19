@@ -300,7 +300,7 @@ class ParameterSweep:
     def runNAB(self):
         ''' Run NAB as a different process and wait for it to return '''
         try:
-            print(subprocess.check_output([self.params['general']['python2'],"run.py","-d","null",self.detectorname,"-m",str(self.params['general']['output_config_location']),"--skipConfirmation"],cwd=self.NAB))#,stderr=subprocess.STDOUT,shell=True))
+            print(subprocess.check_output([self.params['general']['python2'],"run.py","-d",self.detectorname,"-m",str(self.params['general']['output_config_location']),"--skipConfirmation"],cwd=self.NAB))#,stderr=subprocess.STDOUT,shell=True))
         except subprocess.CalledProcessError as e:
             print("Error occured while running following command: " + str(e.cmd))
             print(e.output)
