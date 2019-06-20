@@ -16,6 +16,11 @@
        "parameters":
        [
 	   {
+	       "name": "smartResolution",
+	       "group": "generic",
+	       "range": [1]
+	   },	   	   
+	   {
 	       "name": "enableSpatialTrick",
 	       "group": "generic",
 	       "range": [0]
