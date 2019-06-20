@@ -18,8 +18,13 @@
 	   {
 	       "name": "n",
 	       "group": "valueEncoder",
-	       "range": [130,150]
+	       "range": [130,150,200]
 	   },
+	   {
+	       "name": "valueOnly",
+	       "group": "generic",
+	       "range": [1]
+	   },	   
 	   {
 	       "name": "seed",
 	       "group": "spParams",
