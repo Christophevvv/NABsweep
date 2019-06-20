@@ -33,7 +33,7 @@
 	   {
 	       "name": "missingThreshold",
 	       "group": "generic",
-	       "range": [3,5]
+	       "range": [3]
 	   },
 	   {
 	       "name": "ignoreReset",
@@ -49,7 +49,17 @@
 	       "name": "rescaleOSE",
 	       "group": "generic",
 	       "range": [1]
-	   },	   	   	   	   
+	   },
+	   {
+	       "name": "nrBuckets",
+	       "group": "generic",
+	       "range": [150]
+	   },
+	   {
+	       "name": "valueOnly",
+	       "group": "generic",
+	       "range": [0,1]
+	   },	   	   	   	   	   	   
 	   {
 	       "name": "seed",
 	       "group": "spParams",
