@@ -56,10 +56,20 @@
 	       "range": [130]
 	   },
 	   {
-	       "name": "n",
-	       "group": "valueEncoder",
-	       "range": [130,200,300,400]
-	   },	   
+	       "name": "columnCount",
+	       "group": "spParams",
+	       "range": [4096]
+	   },
+	   {
+	       "name": "columnCount",
+	       "group": "tmParams",
+	       "range": [4096]
+	   },
+	   {
+	       "name": "cellsPerColumn",
+	       "group": "tmParams",
+	       "range": [32,64,128]
+	   },	   	   	   
 	   {
 	       "name": "seed",
 	       "group": "spParams",
