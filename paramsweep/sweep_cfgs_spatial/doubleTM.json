@@ -26,6 +26,11 @@
 	       "range": [1]
 	   },
 	   {
+	       "name": "nrBuckets",
+	       "group": "generic",
+	       "range": [160]
+	   },	   
+	   {
 	       "name": "seed",
 	       "group": "spParams",
 	       "range": [1956,1,2,3,4,5,6,7,8,9,10],
