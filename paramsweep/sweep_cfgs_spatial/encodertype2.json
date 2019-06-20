@@ -28,7 +28,7 @@
 	   {
 	       "name": "n",
 	       "group": "valueEncoder",
-	       "range": [300,400,500,600,800]
+	       "range": [130,150,200]
 	   },	   
 	   {
 	       "name": "seed",
