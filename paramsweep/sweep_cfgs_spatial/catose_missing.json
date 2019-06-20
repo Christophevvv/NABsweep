@@ -56,10 +56,15 @@
 	       "range": [150]
 	   },
 	   {
-	       "name": "valueOnly",
-	       "group": "generic",
-	       "range": [0,1]
-	   },	   	   	   	   	   	   
+	       "name": "timeOfDay",
+	       "group": "timestampEncoder",
+	       "range": [[21,9],[21,8],[21,7]]
+	   },
+	   {
+	       "name": "potentialPct",
+	       "group": "spParams",
+	       "range": [0.6,0.8,1]
+	   },	   	   	   	   	   	   	   
 	   {
 	       "name": "seed",
 	       "group": "spParams",
