@@ -23,8 +23,18 @@
 	   {
 	       "name": "valueOnly",
 	       "group": "generic",
-	       "range": [0,1]
+	       "range": [1]
 	   },
+	   {
+	       "name": "n",
+	       "group": "valueEncoder",
+	       "range": [130,150]
+	   },
+	   {
+	       "name": "potentialPct",
+	       "group": "spParams",
+	       "range": [0.6,0.8,1]
+	   },	   	   
 	   {
 	       "name": "activationThreshold",
 	       "group": "tmParams",
