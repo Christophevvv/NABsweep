@@ -18,7 +18,7 @@
 	   {
 	       "name": "Description",
 	       "group": "generic",
-	       "range": ["numenta and OSE rescaled + missing"]
+	       "range": ["numenta smartres + missing"]
 	   },	   
 	   {
 	       "name": "smartResolution",
@@ -33,33 +33,13 @@
 	   {
 	       "name": "missingThreshold",
 	       "group": "generic",
-	       "range": [3]
+	       "range": [3,4]
 	   },
 	   {
 	       "name": "ignoreReset",
 	       "group": "generic",
 	       "range": [1]
 	   },	   	   
-	   {
-	       "name": "OSE",
-	       "group": "generic",
-	       "range": [1]
-	   },
-	   {
-	       "name": "rescaleOSE",
-	       "group": "generic",
-	       "range": [1]
-	   },
-	   {
-	       "name": "nrBuckets",
-	       "group": "generic",
-	       "range": [130]
-	   },
-	   {
-	       "name": "n",
-	       "group": "valueEncoder",
-	       "range": [130,200,300,400]
-	   },	   
 	   {
 	       "name": "seed",
 	       "group": "spParams",
