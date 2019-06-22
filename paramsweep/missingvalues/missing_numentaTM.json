@@ -19,16 +19,26 @@
 	       "name": "Description",
 	       "group": "generic",
 	       "range": ["missing value on numenta TM"]
+	   },
+	   {
+	       "name": "smartResolution",
+	       "group": "generic",
+	       "range": [0,1]
 	   },	   
 	   {
 	       "name": "missingValues",
 	       "group": "generic",
-	       "range": [0,1]
+	       "range": [1]
 	   },
 	   {
-	       "name": "valueOnly",
+	       "name": "missingThreshold",
 	       "group": "generic",
-	       "range": [0,1]
+	       "range": [3]
+	   },
+	   {
+	       "name": "ignoreReset",
+	       "group": "generic",
+	       "range": [1]
 	   },	   
 	   {
 	       "name": "seed",
