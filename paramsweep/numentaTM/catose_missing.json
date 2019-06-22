@@ -28,12 +28,12 @@
 	   {
 	       "name": "missingValues",
 	       "group": "generic",
-	       "range": [1]
+	       "range": [0,1]
 	   },
 	   {
 	       "name": "missingThreshold",
 	       "group": "generic",
-	       "range": [3,5]
+	       "range": [3]
 	   },
 	   {
 	       "name": "ignoreReset",
